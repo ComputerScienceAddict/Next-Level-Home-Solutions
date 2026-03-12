@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: #faf9f7;
+    color: #111;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Next.js dev overlay portal - keep out of layout */
+nextjs-portal {
+  position: fixed !important;
+  left: 0 !important;
+  top: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  z-index: 2147483647 !important;
+  pointer-events: none !important;
+}
+nextjs-portal > * {
+  pointer-events: auto !important;
+}
+
+@layer components {
+  .input-field {
+    @apply w-full border-b-2 border-black/20 bg-transparent px-0 py-3 text-black focus:outline-none;
+    @apply placeholder:text-black/40;
+  }
+  .input-field:focus {
+    border-color: #8b7355;
+  }
+  .input-premium {
+    @apply border-black/15 transition-colors duration-200;
+  }
+  .input-premium:focus {
+    border-color: #8b7355;
+  }
+  .input-premium::placeholder {
+    @apply text-black/35;
+  }
+  .btn-call {
+    @apply inline-block px-6 py-2.5 text-sm font-medium transition;
+    background-color: #111;
+    color: #faf9f7;
+  }
+  .btn-call:hover {
+    background-color: #8b7355;
+  }
+  .btn-premium {
+    @apply inline-flex items-center justify-center px-8 py-3.5 text-[15px] font-semibold tracking-wide transition-all duration-200;
+    background: linear-gradient(135deg, #1e2d3d 0%, #2a3d52 100%);
+    color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(30, 45, 61, 0.25);
+  }
+  .btn-premium:hover:not(:disabled) {
+    background: linear-gradient(135deg, #2a3d52 0%, #1e2d3d 100%);
+    box-shadow: 0 6px 20px rgba(30, 45, 61, 0.35);
+    transform: translateY(-1px);
+  }
+}
+
+/* Marquee animation - ensure it runs */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes marquee-reverse {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+.animate-marquee {
+  animation: marquee var(--duration, 25s) linear infinite;
+}
+.animate-marquee-reverse {
+  animation: marquee-reverse var(--duration, 25s) linear infinite;
+}
