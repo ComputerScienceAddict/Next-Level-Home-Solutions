@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
 
-const NOTIFY_EMAIL = 'computergamer844@gmail.com';
+const NOTIFY_EMAIL = 'nextlevel@nextlevelhomesolutionsinvest.com';
 
 export async function POST(req: Request) {
   try {
