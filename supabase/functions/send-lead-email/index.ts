@@ -3,7 +3,7 @@ import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts"
 
 const GMAIL_USER = Deno.env.get("GMAIL_ADDRESS")
 const GMAIL_PASS = Deno.env.get("GMAIL_APP_PASSWORD")
-const NOTIFY_EMAIL = "nextlevel@nextlevelhomesolutionsinvest.com"
+const NOTIFY_EMAIL = "computergamer844@gmail.com"
 
 serve(async (req) => {
   try {

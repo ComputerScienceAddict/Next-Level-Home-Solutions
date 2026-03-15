@@ -1,6 +1,6 @@
-# Next Level Home Solutions
+# Monte Investments
 
-Next.js website for Next Level Home Solutions — cash home buyer. Fast, hassle-free home sales across the Central Valley, Las Vegas, and Sonoma County.
+A React/Next.js recreation of the Monte Investments cash home buyer website. Fast, hassle-free home sales across the Central Valley, Las Vegas, and Sonoma County.
 
 ## Getting Started
 
@@ -10,33 +10,29 @@ Next.js website for Next Level Home Solutions — cash home buyer. Fast, hassle-
 npm install
 ```
 
-2. Copy `.env.example` to `.env.local` and add your Supabase + Gmail credentials.
-
-3. Run the development server:
+2. Run the development server:
 
 ```bash
 npm run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+3. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Tech Stack
 
 - **Next.js 14** - React framework with App Router
 - **TypeScript** - Type safety
 - **Tailwind CSS** - Styling
-- **Supabase** - Database & lead storage
-- **Nodemailer** - Lead notification emails
+- **React** - UI components
 
 ## Pages
 
-- `/` - Home page with hero, offer form, how we work, FAQ, testimonials, videos
-- `/get-offer` - Standalone offer request form
+- `/` - Home page with hero, benefits, how we work, FAQ, testimonials
 - `/how-we-work` - Process and benefits
 - `/contact` - Contact form and info
-- `/terms-conditions` - Terms
-- `/privacy-policy` - Privacy Policy
-- `/accessibility` - Accessibility
+- `/terms-conditions` - Terms (placeholder)
+- `/privacy-policy` - Privacy (placeholder)
+- `/accessibility` - Accessibility (placeholder)
 
 ## Build
 

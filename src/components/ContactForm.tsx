@@ -95,22 +95,24 @@ export default function ContactForm({
 
   if (variant === 'message') {
     return (
-      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-        <input type="text" name="name" required placeholder="Name" className="input-field" />
-        <input type="tel" name="phone" placeholder="Phone" className="input-field" />
-        <input type="email" name="email" required placeholder="Email" className="input-field" />
-        <input type="text" name="subject" placeholder="Subject" className="input-field" />
-        <textarea name="message" rows={3} placeholder="Message" className="input-field resize-none" />
-        <label className="flex items-start gap-2 text-sm text-warmgray">
-          <input type="checkbox" name="agree" required className="mt-1" />
-          <span>I agree to the <a href="/terms-conditions" className="text-gold underline">Terms</a> and <a href="/privacy-policy" className="text-gold underline">Privacy Policy</a></span>
-        </label>
-        <div role="alert" className="rounded-lg p-4 text-sm font-medium" aria-live="polite">
-          {status === 'success' && <p className="text-green-700">Message sent! We&apos;ll get back to you soon.</p>}
-          {status === 'error' && <p className="text-red-700">{errorMsg}</p>}
-          {status === 'loading' && <p className="text-warmgray">Sending…</p>}
+      <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <input type="text" name="name" required placeholder="Name" className="input-field input-premium" />
+          <input type="email" name="email" required placeholder="Email" className="input-field input-premium" />
         </div>
-        <button type="submit" className="btn-call" disabled={status === 'loading'}>
+        <input type="tel" name="phone" placeholder="Phone" className="input-field input-premium" />
+        <input type="text" name="subject" placeholder="Subject" className="input-field input-premium" />
+        <textarea name="message" rows={3} placeholder="Message" className="input-field input-premium resize-none" />
+        <label className="flex items-start gap-3 cursor-pointer text-warmgray">
+          <input type="checkbox" name="agree" required className="mt-1 h-4 w-4 shrink-0 rounded border-warmgray/40 text-[#8b7355] focus:ring-[#8b7355]/50" />
+          <span className="text-[14px] leading-snug">I agree to the <a href="/terms-conditions" className="text-[#8b7355] hover:underline">Terms</a> and <a href="/privacy-policy" className="text-[#8b7355] hover:underline">Privacy Policy</a></span>
+        </label>
+        <div role="alert" className="rounded-xl px-4 py-3 text-sm font-medium" aria-live="polite">
+          {status === 'success' && <p className="text-emerald-700">Message sent! We&apos;ll get back to you soon.</p>}
+          {status === 'error' && <p className="text-red-600">{errorMsg}</p>}
+          {status === 'loading' && <p className="text-warmgray animate-pulse">Sending…</p>}
+        </div>
+        <button type="submit" className="btn-premium w-full sm:w-auto disabled:opacity-60 disabled:cursor-not-allowed" disabled={status === 'loading'}>
           {status === 'loading' ? 'Sending…' : 'Send'}
         </button>
       </form>

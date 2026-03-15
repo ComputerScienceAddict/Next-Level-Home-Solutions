@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
 
-const NOTIFY_EMAIL = 'nextlevel@nextlevelhomesolutionsinvest.com';
+const NOTIFY_EMAIL = 'computergamer844@gmail.com';
 
 export async function POST(req: Request) {
   try {
@@ -99,6 +99,39 @@ export async function POST(req: Request) {
       subject: `[Lead Notification] ${(record.form_type || 'LEAD').toUpperCase()}: ${record.name}`,
       html: emailHtml,
     });
+
+    if (record.form_type === 'message' && record.email) {
+      const autoReplyHtml = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 520px; margin: 24px auto; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+    <tr>
+      <td style="background: linear-gradient(135deg, #1e2d3d 0%, #2a3d52 100%); padding: 24px 28px; text-align: center;">
+        <h1 style="margin: 0; color: #fff; font-size: 20px; font-weight: 600;">Thanks for reaching out</h1>
+        <p style="margin: 6px 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">Next Level Home Solutions</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 28px;">
+        <p style="margin: 0 0 16px; font-size: 15px; color: #333; line-height: 1.6;">Hi ${record.name},</p>
+        <p style="margin: 0 0 20px; font-size: 15px; color: #333; line-height: 1.6;">We received your message and will get back to you soon—usually the same day.</p>
+        <p style="margin: 0; font-size: 14px; color: #666;">Need to speak with us right away?</p>
+        <p style="margin: 8px 0 0;"><a href="tel:559-991-2190" style="color: #8b7355; font-weight: 600; text-decoration: none;">559-991-2190</a> — Call or text</p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+      `.trim();
+      await transporter.sendMail({
+        from: gmailUser,
+        to: record.email,
+        subject: "We got your message — Next Level Home Solutions",
+        html: autoReplyHtml,
+      });
+    }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

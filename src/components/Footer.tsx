@@ -23,6 +23,8 @@ export default function Footer() {
               <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Links</p>
               <div className="mt-2 flex flex-col gap-1 text-sm">
                 <Link href="/how-we-work" className="text-white/80 transition hover:text-white">How We Work</Link>
+                <Link href="/stay-in-your-home" className="text-white/80 transition hover:text-white">Stay in Home</Link>
+                <Link href="/probate-help" className="text-white/80 transition hover:text-white">Probate Help</Link>
                 <Link href="/#faq" className="text-white/80 transition hover:text-white">FAQ</Link>
                 <Link href="/contact" className="text-white/80 transition hover:text-white">Contact</Link>
               </div>
@@ -31,9 +33,9 @@ export default function Footer() {
               <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Contact</p>
               <div className="mt-2 space-y-1 text-sm">
                 <a href="tel:559-991-2190" className="block text-white/80 transition hover:text-white">559-991-2190</a>
-                <a href="https://sites.google.com/view/nextlevelhomesolutions" target="_blank" rel="noopener noreferrer" className="block text-white/80 transition hover:text-white">
+                <Link href="/get-offer" className="block text-white/80 transition hover:text-white">
                   Get your cash offer
-                </a>
+                </Link>
               </div>
             </div>
           </div>

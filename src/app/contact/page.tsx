@@ -1,5 +1,6 @@
 import ContactForm from '@/components/ContactForm';
 import FAQ from '@/components/FAQ';
+import Link from 'next/link';
 
 export const metadata = {
   title: 'Contact Us | Next Level Home Solutions',
@@ -30,9 +31,9 @@ export default function ContactPage() {
                   <span className="text-warmgray"> — Call or text</span>
                 </p>
                 <p>
-                  <a href="https://sites.google.com/view/nextlevelhomesolutions" target="_blank" rel="noopener noreferrer" className="font-medium text-gold hover:underline">
+                  <Link href="/get-offer" className="font-medium text-gold hover:underline">
                     Get your cash offer online →
-                  </a>
+                  </Link>
                 </p>
               </div>
             </div>

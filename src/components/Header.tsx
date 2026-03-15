@@ -8,6 +8,8 @@ import { useState } from 'react';
 const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/how-we-work', label: 'How We Work' },
+  { href: '/stay-in-your-home', label: 'Stay in Home' },
+  { href: '/probate-help', label: 'Probate Help' },
   { href: '/#faq', label: 'FAQ' },
   { href: '/contact', label: 'Contact' },
 ];
