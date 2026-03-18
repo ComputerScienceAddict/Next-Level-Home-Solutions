@@ -43,7 +43,10 @@ export default function AdminLeadsPage() {
   const [error, setError] = useState('');
   const [leads, setLeads] = useState<Notice[]>([]);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   const [apiError, setApiError] = useState('');
+  const [lastFetchMessage, setLastFetchMessage] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -60,14 +63,16 @@ export default function AdminLeadsPage() {
   const fetchLeads = async () => {
     setLoading(true);
     setApiError('');
+    setLastFetchMessage(null);
     try {
-      const response = await fetch('/api/leads');
+      const response = await fetch('/api/leads?t=' + Date.now());
       if (!response.ok) {
         throw new Error(`Failed to fetch leads: ${response.status}`);
       }
       const result = await response.json();
       const noticesData = result.data?.data || [];
       setLeads(noticesData);
+      setLastUpdated(new Date());
     } catch (err) {
       console.error('Error fetching leads:', err);
       setApiError('Failed to load leads. Please try again.');
@@ -76,8 +81,27 @@ export default function AdminLeadsPage() {
     }
   };
 
-  const handleExportCSV = () => {
-    window.open('/api/leads/export', '_blank');
+  const handleFetchNewLeads = async () => {
+    setSyncing(true);
+    setApiError('');
+    setLastFetchMessage(null);
+    try {
+      const response = await fetch('/api/leads?t=' + Date.now());
+      if (!response.ok) {
+        throw new Error(`Failed to fetch leads: ${response.status}`);
+      }
+      const result = await response.json();
+      const noticesData = result.data?.data || [];
+      setLeads(noticesData);
+      setLastUpdated(new Date());
+      setLastFetchMessage(`Updated: ${noticesData.length} total leads synced from NicheData.`);
+      setTimeout(() => setLastFetchMessage(null), 5000);
+    } catch (err) {
+      console.error('Error fetching leads:', err);
+      setApiError('Failed to fetch from NicheData. Please try again.');
+    } finally {
+      setSyncing(false);
+    }
   };
 
   const handleLogin = (e: React.FormEvent) => {
@@ -160,12 +184,27 @@ export default function AdminLeadsPage() {
     );
   }
 
-  // Categorize leads by type
-  const foreclosures = leads.filter((l) => l.attributes?.recordType?.toLowerCase() === 'foreclosures');
-  const probates = leads.filter((l) => l.attributes?.recordType?.toLowerCase() === 'probates');
-  const liens = leads.filter((l) => l.attributes?.recordType?.toLowerCase() === 'liens');
-  const estateSales = leads.filter((l) => l.attributes?.recordType?.toLowerCase() === 'estate sales');
-  const otherLeads = leads.filter(
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  function isPastLead(lead: Notice): boolean {
+    const status = (lead.attributes?.saleStatus || '').toLowerCase();
+    if (['postponed', 'sold', 'cancelled', 'closed'].includes(status)) return true;
+    const dateStr = lead.attributes?.dateOfSale;
+    if (!dateStr) return false;
+    const saleDate = new Date(dateStr);
+    saleDate.setHours(0, 0, 0, 0);
+    return saleDate < today;
+  }
+
+  const pastLeads = leads.filter(isPastLead);
+  const currentLeads = leads.filter((l) => !isPastLead(l));
+
+  const foreclosures = currentLeads.filter((l) => l.attributes?.recordType?.toLowerCase() === 'foreclosures');
+  const probates = currentLeads.filter((l) => l.attributes?.recordType?.toLowerCase() === 'probates');
+  const liens = currentLeads.filter((l) => l.attributes?.recordType?.toLowerCase() === 'liens');
+  const estateSales = currentLeads.filter((l) => l.attributes?.recordType?.toLowerCase() === 'estate sales');
+  const otherLeads = currentLeads.filter(
     (l) =>
       !['foreclosures', 'probates', 'liens', 'estate sales'].includes(l.attributes?.recordType?.toLowerCase() || '')
   );
@@ -177,19 +216,34 @@ export default function AdminLeadsPage() {
           <div>
             <h1 className="font-display text-3xl font-semibold text-[#1e2d3d]">Leads Dashboard</h1>
             <p className="mt-1 text-sm text-warmgray">
-              Total: {leads.length} leads — {foreclosures.length} foreclosures, {probates.length} probates, {liens.length} liens, {estateSales.length} estate sales
+              {currentLeads.length} current, {pastLeads.length} past — {foreclosures.length} foreclosures, {probates.length} probates, {liens.length} liens, {estateSales.length} estate sales
             </p>
+            {lastUpdated && (
+              <p className="mt-1 text-xs text-warmgray/60">
+                Last updated: {lastUpdated.toLocaleTimeString()}
+              </p>
+            )}
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
-              onClick={handleExportCSV}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#8b7355] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#6f5a42]"
+              onClick={handleFetchNewLeads}
+              disabled={syncing}
+              className="inline-flex items-center gap-2 rounded-lg bg-[#8b7355] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#6f5a42] disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              Export CSV
+              {syncing ? (
+                <>
+                  <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-r-transparent" />
+                  Fetching from NicheData…
+                </>
+              ) : (
+                <>
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Fetch new leads
+                </>
+              )}
             </button>
             <button
               type="button"
@@ -200,6 +254,12 @@ export default function AdminLeadsPage() {
             </button>
           </div>
         </div>
+
+        {lastFetchMessage && (
+          <div className="mt-4 rounded-lg bg-green-50 border border-green-200 px-4 py-2 text-sm text-green-800">
+            {lastFetchMessage}
+          </div>
+        )}
 
         {apiError && (
           <div className="mt-6 rounded-lg bg-red-50 border border-red-200 p-4">
@@ -390,6 +450,55 @@ export default function AdminLeadsPage() {
                         <td className="px-4 py-3 font-medium text-[#1e2d3d]">{attrs.address || '—'}</td>
                         <td className="px-4 py-3">{attrs.city || '—'}</td>
                         <td className="px-4 py-3">{attrs.county || '—'}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Past leads */}
+        {pastLeads.length > 0 && (
+          <div className="mt-12 border-t border-black/10 pt-10">
+            <h2 className="font-display text-xl font-semibold text-black">Past leads ({pastLeads.length})</h2>
+            <p className="mt-1 text-sm text-warmgray">Sale date passed or status postponed/sold/closed.</p>
+            <div className="mt-4 overflow-x-auto rounded-xl border border-black/10 bg-white">
+              <table className="w-full min-w-[900px] text-left text-sm">
+                <thead>
+                  <tr className="border-b border-black/10 bg-[#1e2d3d] text-white">
+                    <th className="px-4 py-3 font-semibold">ID</th>
+                    <th className="px-4 py-3 font-semibold">Type</th>
+                    <th className="px-4 py-3 font-semibold">Address</th>
+                    <th className="px-4 py-3 font-semibold">City</th>
+                    <th className="px-4 py-3 font-semibold">County</th>
+                    <th className="px-4 py-3 font-semibold">Zip</th>
+                    <th className="px-4 py-3 font-semibold">Sale Date</th>
+                    <th className="px-4 py-3 font-semibold">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pastLeads.map((lead) => {
+                    const attrs = lead.attributes;
+                    return (
+                      <tr key={lead.id} className="border-b border-black/5 hover:bg-black/[0.02]">
+                        <td className="px-4 py-3 text-warmgray">{attrs._id}</td>
+                        <td className="px-4 py-3">
+                          <span className="rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
+                            {attrs.recordType || '—'}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 font-medium text-[#1e2d3d]">{attrs.address || '—'}</td>
+                        <td className="px-4 py-3">{attrs.city || '—'}</td>
+                        <td className="px-4 py-3">{attrs.county || '—'}</td>
+                        <td className="px-4 py-3">{attrs.zipCode || '—'}</td>
+                        <td className="px-4 py-3">{attrs.dateOfSale || '—'}</td>
+                        <td className="px-4 py-3">
+                          <span className="rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
+                            {attrs.saleStatus || '—'}
+                          </span>
+                        </td>
                       </tr>
                     );
                   })}

@@ -12,7 +12,11 @@ const benefits = [
 export const metadata = {
   title: 'How We Work | Next Level Home Solutions',
   description:
-    'Learn how Next Level Home Solutions makes selling your home simple. Cash offers, sell as-is, close in as little as 7 days. Call 559-991-2190.',
+    'Learn how Next Level Home Solutions makes selling your home simple. Cash offers, sell as-is, close in as little as 7 days. No commissions, no showings. Call 559-991-2190.',
+  openGraph: {
+    title: 'How We Work | Next Level Home Solutions',
+    description: 'Simple 3-step process: Submit details, get a cash offer same day, close on your timeline. No commissions, no repairs needed.',
+  },
 };
 
 export default function HowWeWorkPage() {

@@ -12,7 +12,11 @@ const options = [
 export const metadata = {
   title: 'Stay in Your Home | Next Level Home Solutions',
   description:
-    'Don\'t want to sell? You have options. Loan modification, forbearance, refinancing, and more. We help homeowners stay in their homes. Call 559-991-2190.',
+    'Don\'t want to sell? Explore alternatives to foreclosure: loan modification, forbearance, refinancing. We help homeowners stay in their homes. Call 559-991-2190.',
+  openGraph: {
+    title: 'Stay in Your Home | Foreclosure Alternatives',
+    description: 'Explore loan modifications, forbearance, refinancing and more. We help you find the best solution to stay in your home.',
+  },
 };
 
 export default function StayInYourHomePage() {

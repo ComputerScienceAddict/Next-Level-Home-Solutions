@@ -13,14 +13,14 @@ export default function HomePage() {
         <div className="absolute inset-0">
           <Image
             src="https://monteinvestment.com/wp-content/uploads/2025/01/White-Home.png"
-            alt=""
+            alt="Beautiful family home - sell fast with Next Level Home Solutions in Fresno, CA"
             fill
             className="object-cover object-center"
             priority
           />
           <div className="absolute inset-0 bg-black/70" />
         </div>
-        <div className="relative mx-auto flex min-h-[70vh] max-w-5xl flex-col justify-end px-5 pb-24 pt-36">
+        <div className="relative mx-auto flex min-h-[70vh] max-w-5xl flex-col justify-end px-5 pb-20 pt-28 sm:pb-24 sm:pt-36">
           <p className="font-display text-sm uppercase tracking-[0.3em] text-[#c9a86c] sm:text-base">Facing foreclosure? You still have options.</p>
           <h1 className="mt-4 font-display text-5xl leading-[1.1] text-white sm:text-6xl md:text-7xl lg:text-8xl" style={{ textShadow: '0 4px 30px rgba(0,0,0,0.6)' }}>
             Sell your home fast.
@@ -33,14 +33,14 @@ export default function HomePage() {
           <div className="mt-10 flex flex-wrap gap-4">
             <a
               href="tel:559-991-2190"
-              className="inline-flex items-baseline gap-2 border-b-2 border-white pb-1 font-body text-xl font-medium tracking-wide tabular-nums text-white transition hover:border-[#c9a86c]"
+              className="inline-flex items-baseline gap-2 border-b-2 border-white pb-1 font-body text-lg sm:text-xl font-medium tracking-wide tabular-nums text-white transition hover:border-[#c9a86c] min-h-[44px]"
             >
-              <span className="text-2xl">☎</span>
+              <span className="text-xl sm:text-2xl">☎</span>
               559-991-2190
             </a>
             <Link
               href="/get-offer"
-              className="inline-flex items-center gap-2 bg-white px-6 py-3 font-body text-base font-semibold uppercase tracking-widest text-black transition hover:bg-[#c9a86c] hover:text-white"
+              className="inline-flex items-center gap-2 bg-white px-6 py-3 font-body text-base font-semibold uppercase tracking-widest text-black transition hover:bg-[#c9a86c] hover:text-white min-h-[44px]"
             >
               Get offer
               <span aria-hidden>→</span>

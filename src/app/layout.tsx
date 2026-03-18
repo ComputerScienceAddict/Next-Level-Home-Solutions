@@ -19,9 +19,39 @@ const plex = IBM_Plex_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://nextlevelhomesolutions.com'),
   title: 'Next Level Home Solutions | Sell Your Home Fast',
   description:
     'Facing foreclosure? We help homeowners sell quickly. Cash offers, sell as-is, no commissions. Close in as little as 7 days. Call 559-991-2190.',
+  keywords: ['sell house fast', 'cash home buyers', 'foreclosure help', 'sell as-is', 'Fresno home buyers', 'avoid foreclosure'],
+  authors: [{ name: 'Next Level Home Solutions' }],
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: '/',
+    siteName: 'Next Level Home Solutions',
+    title: 'Next Level Home Solutions | Sell Your Home Fast',
+    description: 'Facing foreclosure? We help homeowners sell quickly. Cash offers, sell as-is, no commissions. Close in as little as 7 days.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Next Level Home Solutions | Sell Your Home Fast',
+    description: 'Facing foreclosure? We help homeowners sell quickly. Cash offers, sell as-is, no commissions.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({
@@ -29,8 +59,41 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: 'Next Level Home Solutions',
+    description: 'We buy homes fast for cash. Help homeowners facing foreclosure sell quickly with no commissions.',
+    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://nextlevelhomesolutions.com',
+    telephone: '559-991-2190',
+    priceRange: '$$',
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Fresno',
+      addressRegion: 'CA',
+      addressCountry: 'US',
+    },
+    areaServed: [
+      {
+        '@type': 'City',
+        name: 'Fresno',
+      },
+      {
+        '@type': 'State',
+        name: 'California',
+      },
+    ],
+    openingHours: 'Mo-Fr 08:00-18:00',
+  };
+
   return (
     <html lang="en" className={`${instrument.variable} ${plex.variable}`}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className="font-body antialiased">
         <Header />
         <main>{children}</main>

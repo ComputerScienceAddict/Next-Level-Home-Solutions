@@ -11,7 +11,11 @@ const benefits = [
 export const metadata = {
   title: 'Probate Help | Next Level Home Solutions',
   description:
-    'Need probate help? We help homeowners in probate—handle probate for you, pay probate costs, and guide you through. No out-of-pocket expense. Call 559-991-2190.',
+    'Inherited a property? We handle probate for you, pay probate costs, and guide you through the process. No out-of-pocket expenses. Call 559-991-2190.',
+  openGraph: {
+    title: 'Probate Help | We Handle Everything',
+    description: 'Inherited a home? We handle probate, pay costs, and guide you through the process. No out-of-pocket expenses required.',
+  },
 };
 
 export default function ProbateHelpPage() {

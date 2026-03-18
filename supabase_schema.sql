@@ -71,3 +71,44 @@ CREATE POLICY "Authenticated users can read leads" ON lead_submissions
 -- CREATE TRIGGER on_lead_submitted
 --   AFTER INSERT ON lead_submissions
 --   FOR EACH ROW EXECUTE FUNCTION notify_new_lead();
+
+-- ---------------------------------------------------------------------------
+-- Table: niche_notices
+-- Mirrors NicheData notices (foreclosures, probates, liens, estate sales, etc.)
+-- including county. Synced whenever /api/leads fetches from NicheData.
+-- ---------------------------------------------------------------------------
+CREATE TABLE niche_notices (
+  id TEXT PRIMARY KEY,
+  type TEXT,
+  niche_id BIGINT,
+  record_type TEXT,
+  state TEXT,
+  county TEXT,
+  city TEXT,
+  zip_code TEXT,
+  address TEXT,
+  sale_status TEXT,
+  date_of_sale TEXT,
+  full_name TEXT,
+  property_details JSONB,
+  created_at_from_api TIMESTAMPTZ,
+  updated_at_from_api TIMESTAMPTZ,
+  synced_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_niche_notices_record_type ON niche_notices (record_type);
+CREATE INDEX idx_niche_notices_county ON niche_notices (county);
+CREATE INDEX idx_niche_notices_state ON niche_notices (state);
+CREATE INDEX idx_niche_notices_synced_at ON niche_notices (synced_at DESC);
+
+ALTER TABLE niche_notices ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow anonymous insert for sync" ON niche_notices
+  FOR INSERT TO anon WITH CHECK (true);
+CREATE POLICY "Allow anonymous update for sync" ON niche_notices
+  FOR UPDATE TO anon USING (true) WITH CHECK (true);
+-- API uses anon key to read leads (admin fetches via /api/leads)
+CREATE POLICY "Allow anonymous read niche notices" ON niche_notices
+  FOR SELECT TO anon USING (true);
+CREATE POLICY "Authenticated users can read niche notices" ON niche_notices
+  FOR SELECT TO authenticated USING (true);

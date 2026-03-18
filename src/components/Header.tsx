@@ -53,7 +53,7 @@ export default function Header() {
 
         <button
           type="button"
-          className="md:hidden p-2 -m-2"
+          className="md:hidden p-3 -m-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
           onClick={() => setOpen(!open)}
           aria-label="Menu"
         >
@@ -67,13 +67,13 @@ export default function Header() {
 
       {open && (
         <div className="border-t-2 border-black/10 bg-white px-5 py-4 md:hidden">
-          <nav className="flex flex-col gap-4">
+          <nav className="flex flex-col gap-3">
             {navLinks.map((link) => (
-              <Link key={link.href} href={link.href} className="text-sm text-black" onClick={() => setOpen(false)}>
+              <Link key={link.href} href={link.href} className="text-base py-2 text-black min-h-[44px] flex items-center" onClick={() => setOpen(false)}>
                 {link.label}
               </Link>
             ))}
-            <a href="tel:559-991-2190" className="btn-call inline-block w-fit text-center">
+            <a href="tel:559-991-2190" className="btn-call inline-block w-fit text-center mt-2 min-h-[44px] flex items-center justify-center">
               559-991-2190
             </a>
           </nav>
