@@ -48,10 +48,12 @@ nextjs-portal > * {
   .input-premium::placeholder {
     @apply text-black/35;
   }
+  /* Phone / CTA — compact pill, works in header without stretching */
   .btn-call {
-    @apply inline-block px-6 py-2.5 text-sm font-medium transition;
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold leading-none tracking-wide transition;
     background-color: #111;
     color: #faf9f7;
+    min-height: 2.5rem; /* 40px — fits header row */
   }
   .btn-call:hover {
     background-color: #8b7355;
