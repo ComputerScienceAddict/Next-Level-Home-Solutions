@@ -1,8 +1,16 @@
 import { MetadataRoute } from 'next';
+import { getAllSeoStaticParams } from '@/data/seo-targets';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://nextlevelhomesolutions.com';
   const now = new Date();
+
+  const seoPages: MetadataRoute.Sitemap = getAllSeoStaticParams().map(({ situation, city }) => ({
+    url: `${baseUrl}/sell/${situation}/${city}`,
+    lastModified: now,
+    changeFrequency: 'monthly' as const,
+    priority: 0.75,
+  }));
 
   return [
     {
@@ -59,5 +67,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'yearly',
       priority: 0.3,
     },
+    {
+      url: `${baseUrl}/sell`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.85,
+    },
+    ...seoPages,
   ];
 }

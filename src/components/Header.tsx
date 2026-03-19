@@ -7,6 +7,7 @@ import { useState } from 'react';
 
 const navLinks = [
   { href: '/', label: 'Home' },
+  { href: '/sell', label: 'Areas & situations' },
   { href: '/how-we-work', label: 'How We Work' },
   { href: '/stay-in-your-home', label: 'Stay in Home' },
   { href: '/probate-help', label: 'Probate Help' },
@@ -37,7 +38,9 @@ export default function Header() {
               key={link.href}
               href={link.href}
               className={`text-sm font-medium ${
-                pathname === link.href || (link.href === '/#faq' && pathname === '/')
+                pathname === link.href ||
+                (link.href === '/#faq' && pathname === '/') ||
+                (link.href === '/sell' && pathname.startsWith('/sell'))
                   ? 'text-black'
                   : 'text-gray-600 hover:text-black'
               }`}

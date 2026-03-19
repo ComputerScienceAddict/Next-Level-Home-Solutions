@@ -102,3 +102,94 @@ CREATE POLICY "Allow anonymous read niche notices" ON niche_notices
 DROP POLICY IF EXISTS "Authenticated users can read niche notices" ON niche_notices;
 CREATE POLICY "Authenticated users can read niche notices" ON niche_notices
   FOR SELECT TO authenticated USING (true);
+
+-- ---------------------------------------------------------------------------
+-- Table: seo_pages
+-- AI-generated SEO content for city × situation pages.
+-- Generated via /api/seo-generate, displayed on /sell/[situation]/[city]
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS seo_pages (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  situation_slug TEXT NOT NULL,
+  city_slug TEXT NOT NULL,
+  
+  -- AI-generated content
+  title TEXT,
+  meta_description TEXT,
+  h1 TEXT,
+  intro TEXT,
+  local_angle TEXT,
+  how_we_help JSONB,
+  zip_section TEXT,
+  faqs JSONB,
+  cta TEXT,
+  
+  -- AI analysis metadata
+  ai_model TEXT,
+  ai_prompt_version TEXT,
+  generation_notes TEXT,
+  
+  -- Status workflow
+  status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'review', 'approved', 'published')),
+  
+  -- Timestamps
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  published_at TIMESTAMPTZ,
+  
+  UNIQUE(situation_slug, city_slug)
+);
+
+CREATE INDEX IF NOT EXISTS idx_seo_pages_status ON seo_pages (status);
+CREATE INDEX IF NOT EXISTS idx_seo_pages_situation ON seo_pages (situation_slug);
+CREATE INDEX IF NOT EXISTS idx_seo_pages_city ON seo_pages (city_slug);
+
+ALTER TABLE seo_pages ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow anon read published seo_pages" ON seo_pages;
+CREATE POLICY "Allow anon read published seo_pages" ON seo_pages
+  FOR SELECT TO anon USING (status = 'published');
+
+DROP POLICY IF EXISTS "Allow anon insert seo_pages" ON seo_pages;
+CREATE POLICY "Allow anon insert seo_pages" ON seo_pages
+  FOR INSERT TO anon WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow anon update seo_pages" ON seo_pages;
+CREATE POLICY "Allow anon update seo_pages" ON seo_pages
+  FOR UPDATE TO anon USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Authenticated full access seo_pages" ON seo_pages;
+CREATE POLICY "Authenticated full access seo_pages" ON seo_pages
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- ---------------------------------------------------------------------------
+-- Table: seo_analysis
+-- Stores AI market analysis results and recommendations
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS seo_analysis (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  analysis_type TEXT NOT NULL,
+  
+  -- Analysis results
+  recommended_cities JSONB,
+  recommended_situations JSONB,
+  market_insights TEXT,
+  content_gaps JSONB,
+  priority_actions JSONB,
+  
+  -- Raw AI response for debugging
+  ai_raw_response TEXT,
+  ai_model TEXT,
+  
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+ALTER TABLE seo_analysis ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow anon insert seo_analysis" ON seo_analysis;
+CREATE POLICY "Allow anon insert seo_analysis" ON seo_analysis
+  FOR INSERT TO anon WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow anon read seo_analysis" ON seo_analysis;
+CREATE POLICY "Allow anon read seo_analysis" ON seo_analysis
+  FOR SELECT TO anon USING (true);

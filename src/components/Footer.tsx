@@ -22,6 +22,7 @@ export default function Footer() {
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Links</p>
               <div className="mt-2 flex flex-col gap-1 text-sm">
+                <Link href="/sell" className="text-white/80 transition hover:text-white">Areas & situations</Link>
                 <Link href="/how-we-work" className="text-white/80 transition hover:text-white">How We Work</Link>
                 <Link href="/stay-in-your-home" className="text-white/80 transition hover:text-white">Stay in Home</Link>
                 <Link href="/probate-help" className="text-white/80 transition hover:text-white">Probate Help</Link>
