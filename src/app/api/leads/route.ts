@@ -5,7 +5,27 @@ export const dynamic = 'force-dynamic';
 
 const NICHEDATA_BASE = 'https://customers-api.nichedata.ai/notices';
 
-const COUNTIES = ['Fresno', 'Tulare'];
+// Central Valley + extended surrounding area (Fresno/Tulare and beyond)
+const COUNTIES = [
+  'Fresno',
+  'Tulare',
+  'Kings',     // Hanford, Lemoore
+  'Kern',      // Bakersfield
+  'Madera',    // north of Fresno
+  'Merced',    // northwest of Fresno
+  'Stanislaus', // Modesto
+  'San Joaquin', // Stockton
+  'Sacramento',  // capital region
+  'Yolo',      // Davis, Woodland
+  'Solano',    // Vallejo, Fairfield
+  'San Benito', // Hollister
+  'Monterey',  // Salinas
+  'Santa Cruz',
+  'Mariposa',  // Yosemite gateway
+  'Inyo',      // Eastern Sierra
+  'Placer',    // Roseville, Auburn
+  'El Dorado', // South Lake Tahoe area
+];
 const RECORD_TYPES = [
   'foreclosures',
   'probates',

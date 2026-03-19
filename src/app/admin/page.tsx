@@ -184,21 +184,8 @@ export default function AdminLeadsPage() {
     );
   }
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  function isPastLead(lead: Notice): boolean {
-    const status = (lead.attributes?.saleStatus || '').toLowerCase();
-    if (['postponed', 'sold', 'cancelled', 'closed'].includes(status)) return true;
-    const dateStr = lead.attributes?.dateOfSale;
-    if (!dateStr) return false;
-    const saleDate = new Date(dateStr);
-    saleDate.setHours(0, 0, 0, 0);
-    return saleDate < today;
-  }
-
-  const pastLeads = leads.filter(isPastLead);
-  const currentLeads = leads.filter((l) => !isPastLead(l));
+  // Only show listings with status "active" (exclude Pending, postponed, sold, cancelled, closed, etc.)
+  const currentLeads = leads.filter((l) => (l.attributes?.saleStatus || '').toLowerCase() === 'active');
 
   const foreclosures = currentLeads.filter((l) => l.attributes?.recordType?.toLowerCase() === 'foreclosures');
   const probates = currentLeads.filter((l) => l.attributes?.recordType?.toLowerCase() === 'probates');
@@ -216,7 +203,7 @@ export default function AdminLeadsPage() {
           <div>
             <h1 className="font-display text-3xl font-semibold text-[#1e2d3d]">Leads Dashboard</h1>
             <p className="mt-1 text-sm text-warmgray">
-              {currentLeads.length} current, {pastLeads.length} past — {foreclosures.length} foreclosures, {probates.length} probates, {liens.length} liens, {estateSales.length} estate sales
+              {currentLeads.length} active listings — {foreclosures.length} foreclosures, {probates.length} probates, {liens.length} liens, {estateSales.length} estate sales
             </p>
             {lastUpdated && (
               <p className="mt-1 text-xs text-warmgray/60">
@@ -459,58 +446,9 @@ export default function AdminLeadsPage() {
           </div>
         )}
 
-        {/* Past leads */}
-        {pastLeads.length > 0 && (
-          <div className="mt-12 border-t border-black/10 pt-10">
-            <h2 className="font-display text-xl font-semibold text-black">Past leads ({pastLeads.length})</h2>
-            <p className="mt-1 text-sm text-warmgray">Sale date passed or status postponed/sold/closed.</p>
-            <div className="mt-4 overflow-x-auto rounded-xl border border-black/10 bg-white">
-              <table className="w-full min-w-[900px] text-left text-sm">
-                <thead>
-                  <tr className="border-b border-black/10 bg-[#1e2d3d] text-white">
-                    <th className="px-4 py-3 font-semibold">ID</th>
-                    <th className="px-4 py-3 font-semibold">Type</th>
-                    <th className="px-4 py-3 font-semibold">Address</th>
-                    <th className="px-4 py-3 font-semibold">City</th>
-                    <th className="px-4 py-3 font-semibold">County</th>
-                    <th className="px-4 py-3 font-semibold">Zip</th>
-                    <th className="px-4 py-3 font-semibold">Sale Date</th>
-                    <th className="px-4 py-3 font-semibold">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pastLeads.map((lead) => {
-                    const attrs = lead.attributes;
-                    return (
-                      <tr key={lead.id} className="border-b border-black/5 hover:bg-black/[0.02]">
-                        <td className="px-4 py-3 text-warmgray">{attrs._id}</td>
-                        <td className="px-4 py-3">
-                          <span className="rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
-                            {attrs.recordType || '—'}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 font-medium text-[#1e2d3d]">{attrs.address || '—'}</td>
-                        <td className="px-4 py-3">{attrs.city || '—'}</td>
-                        <td className="px-4 py-3">{attrs.county || '—'}</td>
-                        <td className="px-4 py-3">{attrs.zipCode || '—'}</td>
-                        <td className="px-4 py-3">{attrs.dateOfSale || '—'}</td>
-                        <td className="px-4 py-3">
-                          <span className="rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
-                            {attrs.saleStatus || '—'}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {leads.length === 0 && !apiError && (
+        {currentLeads.length === 0 && !apiError && (
           <div className="mt-10 rounded-xl border border-black/10 bg-white p-12 text-center">
-            <p className="text-warmgray">No leads available at this time.</p>
+            <p className="text-warmgray">No active listings at this time.</p>
           </div>
         )}
       </div>
