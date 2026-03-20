@@ -11,6 +11,17 @@ type IpWhoResponse = {
   country_code?: string;
 };
 
+type NominatimResponse = {
+  address?: {
+    city?: string;
+    town?: string;
+    village?: string;
+    county?: string;
+    state?: string;
+    state_code?: string;
+  };
+};
+
 async function lookupIp(ip: string): Promise<{ city?: string; region?: string } | null> {
   const clean = ip.split(',')[0]?.trim();
   if (!clean || clean === '127.0.0.1' || clean === '::1') return null;
@@ -31,24 +42,67 @@ async function lookupIp(ip: string): Promise<{ city?: string; region?: string } 
   }
 }
 
+async function reverseGeocode(lat: number, lng: number): Promise<{ city?: string; region?: string } | null> {
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1`,
+      {
+        headers: {
+          'User-Agent': 'NextLevelHomeSolutions/1.0',
+          Accept: 'application/json',
+        },
+      }
+    );
+    if (!res.ok) return null;
+    const data = (await res.json()) as NominatimResponse;
+    const addr = data.address;
+    if (!addr) return null;
+    const city = addr.city || addr.town || addr.village;
+    const region = addr.state_code || addr.state;
+    return { city, region };
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Detect visitor area for personalization (homepage, /areas, popular situations).
- * 1) Vercel geo headers on production
- * 2) IP lookup (ipwho.is) as fallback
+ * 1) Query params (lat/lng or city/state override)
+ * 2) Vercel geo headers on production
+ * 3) IP lookup (ipwho.is) as fallback
  */
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const overrideCity = searchParams.get('city');
   const overrideRegion = searchParams.get('state') || searchParams.get('region');
+  const latStr = searchParams.get('lat');
+  const lngStr = searchParams.get('lng');
 
   let geoCity: string | null = overrideCity;
   let region: string | null = overrideRegion;
 
-  let source: 'query' | 'vercel' | 'ip' | 'none' = 'none';
+  let source: 'gps' | 'query' | 'vercel' | 'ip' | 'none' = 'none';
 
-  if (geoCity && region) {
+  if (latStr && lngStr) {
+    const lat = parseFloat(latStr);
+    const lng = parseFloat(lngStr);
+    if (!isNaN(lat) && !isNaN(lng)) {
+      const gpsData = await reverseGeocode(lat, lng);
+      if (gpsData?.city && gpsData.region) {
+        geoCity = gpsData.city;
+        region = gpsData.region;
+        source = 'gps';
+      }
+    }
+  }
+
+  if (!geoCity && overrideCity && overrideRegion) {
+    geoCity = overrideCity;
+    region = overrideRegion;
     source = 'query';
-  } else {
+  }
+
+  if (!geoCity) {
     const vCity = request.headers.get('x-vercel-ip-city');
     const vRegion = request.headers.get('x-vercel-ip-country-region');
     if (vCity && vRegion) {

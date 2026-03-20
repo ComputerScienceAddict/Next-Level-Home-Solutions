@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { business } from '@/config/business';
+import { requestBrowserLocation } from '@/lib/browser-geolocation';
 import { SITE_HOUSES_BACKGROUND_URL } from '@/config/site-assets';
 import { SEO_CITIES, SELLER_SITUATIONS } from '@/data/seo-targets';
 import { useDetectArea } from '@/hooks/useDetectArea';
@@ -16,12 +17,30 @@ const STATE_TABS = [
 ];
 
 export default function WelcomePage() {
-  const { data: geo, loading: geoLoading } = useDetectArea();
+  const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [gpsState, setGpsState] = useState<'idle' | 'requesting' | 'granted' | 'denied'>('idle');
+  const gpsRequested = useRef(false);
+  
+  const { data: geo, loading: geoLoading } = useDetectArea(gpsCoords?.lat, gpsCoords?.lng);
   const [selectedSituation, setSelectedSituation] = useState<string | null>(null);
   const [selectedCitySlug, setSelectedCitySlug] = useState<string | null>(null);
   const [locationTab, setLocationTab] = useState<'CA' | 'NV' | 'AZ'>('CA');
   const [citySearch, setCitySearch] = useState('');
   const geoCityApplied = useRef(false);
+
+  useEffect(() => {
+    if (gpsRequested.current) return;
+    gpsRequested.current = true;
+    setGpsState('requesting');
+    void requestBrowserLocation(12000).then((result) => {
+      if (result.status === 'granted') {
+        setGpsCoords({ lat: result.lat, lng: result.lng });
+        setGpsState('granted');
+      } else {
+        setGpsState('denied');
+      }
+    });
+  }, []);
 
   const statesWithCities = useMemo(
     () => STATE_TABS.filter((s) => SEO_CITIES.some((c) => c.state === s.code)),
@@ -124,7 +143,14 @@ export default function WelcomePage() {
         </p>
 
         <div className="mx-auto mt-8 max-w-2xl rounded-xl border-2 border-[#8b7355]/50 bg-[#1e2d3d]/95 px-4 py-3 text-center text-sm text-[#f0ebe4] shadow-lg">
-          {geoLoading && <span className="text-[#c9a86c]/90">Detecting your general area to suggest a city…</span>}
+          {gpsState === 'requesting' && (
+            <span className="text-[#c9a86c]/90">
+              Asking for your location (browser prompt)—we find the nearest city we serve…
+            </span>
+          )}
+          {geoLoading && gpsState === 'granted' && (
+            <span className="text-[#c9a86c]/90">Got your location—finding nearest city we serve…</span>
+          )}
           {!geoLoading && geo && 'matched' in geo && geo.matched && (
             <>
               <span className="font-semibold text-[#c9a86c]">
@@ -137,7 +163,9 @@ export default function WelcomePage() {
           )}
           {!geoLoading && geo && (!('matched' in geo) || !geo.matched) && (
             <span className="text-[#d4cfc4]">
-              Pick your city manually below—we couldn&apos;t detect your area automatically.
+              {gpsState === 'denied'
+                ? "Location access denied—pick your city manually below."
+                : "We couldn't place your area automatically—pick your city manually below."}
             </span>
           )}
         </div>

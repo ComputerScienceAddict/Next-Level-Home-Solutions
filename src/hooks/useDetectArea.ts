@@ -50,8 +50,14 @@ function writeCache(payload: DetectAreaResult) {
   }
 }
 
-async function fetchDetectAreaFromApi(): Promise<DetectAreaResult> {
-  const res = await fetch('/api/detect-area', { cache: 'no-store' });
+async function fetchDetectAreaFromApi(lat?: number, lng?: number): Promise<DetectAreaResult> {
+  const params = new URLSearchParams();
+  if (lat !== undefined && lng !== undefined) {
+    params.set('lat', lat.toString());
+    params.set('lng', lng.toString());
+  }
+  const url = `/api/detect-area${params.toString() ? `?${params}` : ''}`;
+  const res = await fetch(url, { cache: 'no-store' });
   const json = (await res.json()) as DetectAreaResult & { ok?: boolean };
   if (!res.ok) {
     return { matched: false, source: 'error', message: 'Could not detect location.' };
@@ -61,7 +67,10 @@ async function fetchDetectAreaFromApi(): Promise<DetectAreaResult> {
   return payload;
 }
 
-function loadDetectArea(): Promise<DetectAreaResult> {
+function loadDetectArea(lat?: number, lng?: number): Promise<DetectAreaResult> {
+  if (lat !== undefined && lng !== undefined) {
+    return fetchDetectAreaFromApi(lat, lng);
+  }
   const cached = readCache();
   if (cached) return Promise.resolve(cached);
   if (!sharedFetch) {
@@ -72,7 +81,7 @@ function loadDetectArea(): Promise<DetectAreaResult> {
   return sharedFetch;
 }
 
-export function useDetectArea() {
+export function useDetectArea(gpsLat?: number, gpsLng?: number) {
   const [data, setData] = useState<DetectAreaResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -94,7 +103,7 @@ export function useDetectArea() {
 
   useEffect(() => {
     let cancelled = false;
-    void loadDetectArea().then((payload) => {
+    void loadDetectArea(gpsLat, gpsLng).then((payload) => {
       if (!cancelled) {
         setData(payload);
         setLoading(false);
@@ -103,7 +112,7 @@ export function useDetectArea() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [gpsLat, gpsLng]);
 
   return { data, loading, error, refresh };
 }
