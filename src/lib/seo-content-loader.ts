@@ -33,7 +33,9 @@ async function fetchAiContent(situationSlug: string, citySlug: string): Promise<
       .eq('situation_slug', situationSlug)
       .eq('city_slug', citySlug)
       .eq('status', 'published')
-      .single();
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
     if (error || !data) return null;
     return data as AiSeoPage;

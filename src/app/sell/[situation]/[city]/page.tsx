@@ -3,21 +3,24 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { business } from '@/config/business';
 import { getAllSeoStaticParams, getCityBySlug, getSituationBySlug } from '@/data/seo-targets';
-import { buildSeoPageContent } from '@/lib/seo-content';
+import { loadSeoContent } from '@/lib/seo-content-loader';
 
 type Props = { params: { situation: string; city: string } };
+
+/** Re-fetch Supabase AI content periodically without full rebuild */
+export const revalidate = 120;
 
 export function generateStaticParams() {
   return getAllSeoStaticParams();
 }
 
-export function generateMetadata({ params }: Props): Metadata {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const situation = getSituationBySlug(params.situation);
   const city = getCityBySlug(params.city);
   if (!situation || !city) {
     return { title: 'Page not found' };
   }
-  const content = buildSeoPageContent(situation, city);
+  const { content } = await loadSeoContent(situation, city);
   const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://nextlevelhomesolutions.com';
   const url = `${base}/sell/${params.situation}/${params.city}`;
   return {
@@ -35,14 +38,14 @@ export function generateMetadata({ params }: Props): Metadata {
   };
 }
 
-export default function SellSituationCityPage({ params }: Props) {
+export default async function SellSituationCityPage({ params }: Props) {
   const situation = getSituationBySlug(params.situation);
   const city = getCityBySlug(params.city);
   if (!situation || !city) {
     notFound();
   }
 
-  const content = buildSeoPageContent(situation, city);
+  const { content, source } = await loadSeoContent(situation, city);
   const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://nextlevelhomesolutions.com';
   const pageUrl = `${base}/sell/${params.situation}/${params.city}`;
 
@@ -61,7 +64,7 @@ export default function SellSituationCityPage({ params }: Props) {
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: base },
-      { '@type': 'ListItem', position: 2, name: 'Sell your house', item: `${base}/sell` },
+      { '@type': 'ListItem', position: 2, name: 'Areas', item: `${base}/areas` },
       {
         '@type': 'ListItem',
         position: 3,
@@ -106,14 +109,19 @@ export default function SellSituationCityPage({ params }: Props) {
               Home
             </Link>
             <span className="mx-2">/</span>
-            <Link href="/sell" className="hover:text-white">
-              Sell your house
+            <Link href="/areas" className="hover:text-white">
+              Areas
             </Link>
             <span className="mx-2">/</span>
             <span className="text-white/90">{city.name}</span>
           </nav>
           <p className="mt-6 text-xs font-semibold uppercase tracking-[0.25em] text-[#8b7355]">
             {city.county} County · {city.state}
+            {source === 'ai' && (
+              <span className="ml-2 rounded bg-white/10 px-2 py-0.5 text-[10px] font-normal normal-case tracking-normal text-white/70">
+                AI-enhanced
+              </span>
+            )}
           </p>
           <h1 className="mt-2 font-display text-3xl text-white md:text-5xl md:leading-tight">{content.h1}</h1>
           <p className="mt-6 max-w-2xl text-lg text-white/85">{content.intro}</p>
@@ -194,8 +202,12 @@ export default function SellSituationCityPage({ params }: Props) {
               Probate help
             </Link>
             {' · '}
+            <Link href="/areas" className="font-medium text-[#8b7355] hover:underline">
+              Areas picker
+            </Link>
+            {' · '}
             <Link href="/sell" className="font-medium text-[#8b7355] hover:underline">
-              All seller situations
+              All pages
             </Link>
           </p>
         </div>

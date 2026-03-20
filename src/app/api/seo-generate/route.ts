@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { business } from '@/config/business';
 import { getCityBySlug, getSituationBySlug, SEO_CITIES, SELLER_SITUATIONS } from '@/data/seo-targets';
-import { generateWithAI } from '@/lib/ai';
+import { generateWithAIJson, getActiveAiProvider } from '@/lib/ai';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -70,19 +70,22 @@ Return ONLY valid JSON with this exact structure (no markdown, no explanation):
 }
 
 async function generateContent(prompt: string): Promise<GeneratedContent | null> {
-  const text = await generateWithAI(
+  const text = await generateWithAIJson(
     prompt,
-    'You are an expert SEO copywriter. Return only valid JSON, no markdown formatting.'
+    'You are an expert SEO copywriter. Output a single JSON object only. No markdown.'
   );
   if (!text) return null;
 
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) return null;
-
   try {
-    return JSON.parse(jsonMatch[0]) as GeneratedContent;
+    return JSON.parse(text) as GeneratedContent;
   } catch {
-    return null;
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) return null;
+    try {
+      return JSON.parse(jsonMatch[0]) as GeneratedContent;
+    } catch {
+      return null;
+    }
   }
 }
 
@@ -116,7 +119,8 @@ async function saveToSupabase(
       cta: content.cta,
       ai_model: model,
       ai_prompt_version: PROMPT_VERSION,
-      status: 'draft',
+      status: 'published',
+      published_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     },
     { onConflict: 'situation_slug,city_slug' }
@@ -157,7 +161,7 @@ export async function POST(request: NextRequest) {
 
           const content = await generateContent(prompt);
           if (content) {
-            const model = process.env.GEMINI_API_KEY ? 'gemini-1.5-flash' : 'gpt-4o';
+            const model = getActiveAiProvider() === 'gemini' ? 'gemini (multi-model)' : 'gpt-4o';
             const saveResult = await saveToSupabase(s.slug, c.slug, content, model);
             results.push({ situation: s.slug, city: c.slug, ...saveResult });
           } else {
@@ -195,7 +199,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'AI content generation failed' }, { status: 500 });
     }
 
-    const model = process.env.GEMINI_API_KEY ? 'gemini-1.5-flash' : 'gpt-4o';
+    const model = getActiveAiProvider() === 'gemini' ? 'gemini (multi-model)' : 'gpt-4o';
     const saveResult = await saveToSupabase(situation, city, content, model);
     if (!saveResult.success) {
       return NextResponse.json(

@@ -278,9 +278,9 @@ export default function AdminSeoPage() {
                   </p>
                 </div>
                 <div className="rounded-lg bg-[#faf9f7] p-4">
-                  <p className="font-medium text-[#1e2d3d]">4. Publish</p>
+                  <p className="font-medium text-[#1e2d3d]">4. Live</p>
                   <p className="mt-1 text-sm text-warmgray">
-                    Published pages go live on /sell/[situation]/[city] with full SEO optimization.
+                    New AI pages save as <strong>published</strong> and replace templates on /sell/… within about 2 minutes (ISR).
                   </p>
                 </div>
               </div>

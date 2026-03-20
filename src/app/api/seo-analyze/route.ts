@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { business } from '@/config/business';
 import { SEO_CITIES, SELLER_SITUATIONS } from '@/data/seo-targets';
-import { generateWithAI } from '@/lib/ai';
+import { generateWithAIJson, getActiveAiProvider } from '@/lib/ai';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -128,15 +128,26 @@ Return ONLY valid JSON (no markdown) with this structure:
 Include all configured cities and situations in your rankings. Be specific and actionable.`;
 
   try {
-    const text = await generateWithAI(
+    const text = await generateWithAIJson(
       prompt,
-      'You are an SEO expert. Return only valid JSON, no markdown formatting or code blocks.'
+      'You are an SEO expert. Output a single JSON object only. No markdown or code fences.'
     );
     if (!text) return null;
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return null;
 
-    const parsed = JSON.parse(jsonMatch[0]);
+    let parsed: Record<string, unknown>;
+    try {
+      parsed = JSON.parse(text) as Record<string, unknown>;
+    } catch {
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) return null;
+      parsed = JSON.parse(jsonMatch[0]) as Record<string, unknown>;
+    }
+
+    const topCities = Array.isArray(parsed.topCities) ? parsed.topCities : [];
+    const topSituations = Array.isArray(parsed.topSituations) ? parsed.topSituations : [];
+    const immediateActions = Array.isArray(parsed.immediateActions) ? parsed.immediateActions : [];
+    const contentGaps = Array.isArray(parsed.contentGaps) ? parsed.contentGaps : [];
+    const competitiveInsights = Array.isArray(parsed.competitiveInsights) ? parsed.competitiveInsights : [];
 
     return {
       source: 'ai',
@@ -147,20 +158,20 @@ Include all configured cities and situations in your rankings. Be specific and a
         phone: business.phone,
       },
       marketAnalysis: {
-        topCities: parsed.topCities ?? [],
-        topSituations: parsed.topSituations ?? [],
+        topCities: topCities as AnalysisResult['marketAnalysis']['topCities'],
+        topSituations: topSituations as AnalysisResult['marketAnalysis']['topSituations'],
       },
       contentStrategy: {
-        immediateActions: parsed.immediateActions ?? [],
-        contentGaps: parsed.contentGaps ?? [],
-        competitiveInsights: parsed.competitiveInsights ?? [],
+        immediateActions: immediateActions as string[],
+        contentGaps: contentGaps as string[],
+        competitiveInsights: competitiveInsights as string[],
       },
       metrics: {
         totalPagesConfigured: SEO_CITIES.length * SELLER_SITUATIONS.length,
         citiesConfigured: SEO_CITIES.length,
         situationsConfigured: SELLER_SITUATIONS.length,
       },
-      summary: parsed.summary ?? 'AI analysis complete.',
+      summary: typeof parsed.summary === 'string' ? parsed.summary : 'AI analysis complete.',
     };
   } catch (e) {
     console.error('AI analysis error:', e);
@@ -182,7 +193,7 @@ async function saveAnalysis(analysis: AnalysisResult): Promise<void> {
       market_insights: analysis.summary,
       content_gaps: analysis.contentStrategy.contentGaps,
       priority_actions: analysis.contentStrategy.immediateActions,
-      ai_model: analysis.source === 'ai' ? (process.env.GEMINI_API_KEY ? 'gemini-1.5-flash' : 'gpt-4o') : null,
+      ai_model: analysis.source === 'ai' ? (getActiveAiProvider() === 'gemini' ? 'gemini' : 'gpt-4o') : null,
     });
   } catch (e) {
     console.error('Failed to save analysis:', e);
