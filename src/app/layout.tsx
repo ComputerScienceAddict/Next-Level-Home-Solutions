@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
+import type { CSSProperties } from 'react';
 import { Instrument_Serif, IBM_Plex_Sans } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { SITE_HOUSES_BACKGROUND_URL } from '@/config/site-assets';
 
 const instrument = Instrument_Serif({
   weight: ['400'],
@@ -94,7 +96,14 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="font-body antialiased">
+      <body
+        className="site-body-bg font-body antialiased"
+        style={
+          {
+            ['--site-houses-bg']: `url("${SITE_HOUSES_BACKGROUND_URL}")`,
+          } as CSSProperties
+        }
+      >
         <Header />
         <main>{children}</main>
         <Footer />

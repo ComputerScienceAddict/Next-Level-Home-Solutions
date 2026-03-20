@@ -1,5 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import LocalForYouHome from '@/components/LocalForYouHome';
+import { SITE_HOUSES_BACKGROUND_URL } from '@/config/site-assets';
 import ContactForm from '@/components/ContactForm';
 import FAQ from '@/components/FAQ';
 import Testimonials from '@/components/Testimonials';
@@ -12,7 +14,7 @@ export default function HomePage() {
       <section className="relative min-h-[70vh]">
         <div className="absolute inset-0">
           <Image
-            src="https://monteinvestment.com/wp-content/uploads/2025/01/White-Home.png"
+            src={SITE_HOUSES_BACKGROUND_URL}
             alt="Beautiful family home - sell fast with Next Level Home Solutions in Fresno, CA"
             fill
             className="object-cover object-center"
@@ -48,6 +50,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <LocalForYouHome />
 
       {/* Form + about — side by side on desktop */}
       <section id="offer" className="border-t-2 border-black/10 bg-black/5">

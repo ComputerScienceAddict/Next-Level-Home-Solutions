@@ -1,14 +1,24 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { business } from '@/config/business';
 import { SEO_CITIES, SELLER_SITUATIONS, getSituationBySlug } from '@/data/seo-targets';
+import { useDetectArea } from '@/hooks/useDetectArea';
 
 export default function AreasPage() {
   const [selectedSituation, setSelectedSituation] = useState<string | null>(null);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'situation-first' | 'location-first'>('situation-first');
+  const [viewMode, setViewMode] = useState<'situation-first' | 'location-first'>('location-first');
+  const userPickedCity = useRef(false);
+  const { data: geo } = useDetectArea();
+
+  useEffect(() => {
+    if (!geo || !('matched' in geo) || !geo.matched) return;
+    if (userPickedCity.current) return;
+    setSelectedCity(geo.city.slug);
+    setViewMode('location-first');
+  }, [geo]);
 
   const situation = selectedSituation ? getSituationBySlug(selectedSituation) : null;
   const city = selectedCity ? SEO_CITIES.find((c) => c.slug === selectedCity) : null;
@@ -28,6 +38,11 @@ export default function AreasPage() {
 
   const states = [...new Set(SEO_CITIES.map((c) => c.state))].sort();
 
+  const situationListForStep1 =
+    viewMode === 'situation-first' && selectedCity
+      ? situationsForCity(selectedCity)
+      : SELLER_SITUATIONS;
+
   return (
     <>
       <section className="relative min-h-[32vh] bg-[#2a2520] py-14 md:py-18">
@@ -42,9 +57,21 @@ export default function AreasPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#8b7355]">Find your page</p>
           <h1 className="mt-2 font-display text-4xl text-white md:text-5xl">Areas We Serve</h1>
           <p className="mt-6 max-w-2xl text-lg text-white/85">
-            Select what applies to you—foreclosure, probate, divorce, inherited property, bad tenants, repairs, or
-            vacant house—then pick your location. You&apos;ll get a specialized page with local info and your next steps.
+            We use your general location (not exact address) to highlight what&apos;s popular in your area and open the
+            right page. You can change city anytime.
           </p>
+          {geo && 'matched' in geo && geo.matched && (
+            <p className="mt-4 max-w-2xl rounded-lg border border-[#c9a86c]/40 bg-black/20 px-4 py-3 text-sm text-white/90">
+              <span className="font-semibold text-[#c9a86c]">
+                {geo.approximate && geo.detectedCityName
+                  ? `Near ${geo.detectedCityName}, ${geo.city.state}`
+                  : `${geo.city.name}, ${geo.city.state}`}
+              </span>
+              {geo.approximate && geo.detectedCityName
+                ? ` — showing our ${geo.city.name} hub & situations people ask about there.`
+                : ' — popular situations for your area are listed first below.'}
+            </p>
+          )}
           <div className="mt-6 flex flex-wrap gap-3">
             <button
               onClick={() => setViewMode('situation-first')}
@@ -77,23 +104,28 @@ export default function AreasPage() {
               <h2 className="font-display text-2xl font-semibold text-[#1e2d3d]">1. What&apos;s your situation?</h2>
               <p className="mt-2 text-warmgray">Select what best describes why you want to sell.</p>
               <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {SELLER_SITUATIONS.map((s) => (
-                  <button
-                    key={s.slug}
-                    onClick={() => {
-                      setSelectedSituation(s.slug);
-                      setSelectedCity(null);
-                    }}
-                    className={`rounded-xl border-2 p-5 text-left transition ${
-                      selectedSituation === s.slug
-                        ? 'border-[#8b7355] bg-[#faf9f7]'
-                        : 'border-black/10 bg-white hover:border-[#8b7355]/40'
-                    }`}
-                  >
-                    <span className="font-display text-lg font-semibold text-[#1e2d3d]">{s.title}</span>
-                    <p className="mt-1 text-sm text-warmgray line-clamp-2">{s.painSummary}</p>
-                  </button>
-                ))}
+                {situationListForStep1.map((s) => {
+                  const pop =
+                    selectedCity &&
+                    SEO_CITIES.find((c) => c.slug === selectedCity)?.popularSituations?.includes(s.slug);
+                  return (
+                    <button
+                      key={s.slug}
+                      onClick={() => setSelectedSituation(s.slug)}
+                      className={`rounded-xl border-2 p-5 text-left transition ${
+                        selectedSituation === s.slug
+                          ? 'border-[#8b7355] bg-[#faf9f7]'
+                          : 'border-black/10 bg-white hover:border-[#8b7355]/40'
+                      }`}
+                    >
+                      <span className="font-display text-lg font-semibold text-[#1e2d3d]">{s.title}</span>
+                      {pop && (
+                        <span className="ml-2 text-xs font-medium text-[#8b7355]">Popular in your area</span>
+                      )}
+                      <p className="mt-1 text-sm text-warmgray line-clamp-2">{s.painSummary}</p>
+                    </button>
+                  );
+                })}
               </div>
 
               {selectedSituation && (
@@ -108,7 +140,10 @@ export default function AreasPage() {
                           {SEO_CITIES.filter((c) => c.state === state).map((c) => (
                             <button
                               key={c.slug}
-                              onClick={() => setSelectedCity(c.slug)}
+                              onClick={() => {
+                                userPickedCity.current = true;
+                                setSelectedCity(c.slug);
+                              }}
                               className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
                                 selectedCity === c.slug
                                   ? 'bg-[#8b7355] text-white'
@@ -138,6 +173,7 @@ export default function AreasPage() {
                         <button
                           key={c.slug}
                           onClick={() => {
+                            userPickedCity.current = true;
                             setSelectedCity(c.slug);
                             setSelectedSituation(null);
                           }}

@@ -193,3 +193,20 @@ CREATE POLICY "Allow anon insert seo_analysis" ON seo_analysis
 DROP POLICY IF EXISTS "Allow anon read seo_analysis" ON seo_analysis;
 CREATE POLICY "Allow anon read seo_analysis" ON seo_analysis
   FOR SELECT TO anon USING (true);
+
+-- ---------------------------------------------------------------------------
+-- OPTIONAL: store welcome / area prefs in Supabase instead of localStorage
+-- (see src/lib/client-storage-keys.ts). Handy for cross-device sync or analytics.
+-- Flow: generate crypto.randomUUID() once in the browser, save as nlhs_anon_id
+-- in localStorage; upsert rows by anon_key via a small API route (prefer service
+-- role on the server for writes). Uncomment and run when you want this.
+-- ---------------------------------------------------------------------------
+-- CREATE TABLE IF NOT EXISTS visitor_preferences (
+--   anon_key TEXT PRIMARY KEY,
+--   preferred_situation_slug TEXT,
+--   detect_area_cache JSONB,
+--   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+-- );
+-- ALTER TABLE visitor_preferences ENABLE ROW LEVEL SECURITY;
+-- CREATE POLICY "anon upsert own row" ON visitor_preferences
+--   FOR ALL TO anon USING (true) WITH CHECK (true);

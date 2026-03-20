@@ -3,6 +3,8 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { business } from '@/config/business';
 import { getAllSeoStaticParams, getCityBySlug, getSituationBySlug } from '@/data/seo-targets';
+import SellLocalMatchBanner from '@/components/SellLocalMatchBanner';
+import { popularSituationsForCity } from '@/lib/geo-match';
 import { loadSeoContent } from '@/lib/seo-content-loader';
 
 type Props = { params: { situation: string; city: string } };
@@ -46,6 +48,7 @@ export default async function SellSituationCityPage({ params }: Props) {
   }
 
   const { content, source } = await loadSeoContent(situation, city);
+  const popularHere = popularSituationsForCity(city).filter((p) => p.slug !== situation.slug);
   const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://nextlevelhomesolutions.com';
   const pageUrl = `${base}/sell/${params.situation}/${params.city}`;
 
@@ -104,6 +107,7 @@ export default async function SellSituationCityPage({ params }: Props) {
           }}
         />
         <div className="relative mx-auto max-w-5xl px-5">
+          <SellLocalMatchBanner pageCitySlug={city.slug} />
           <nav className="text-xs text-white/60">
             <Link href="/" className="hover:text-white">
               Home
@@ -138,6 +142,27 @@ export default async function SellSituationCityPage({ params }: Props) {
 
       <section className="border-t border-black/10 py-14">
         <div className="mx-auto max-w-5xl px-5">
+          {popularHere.length > 0 && (
+            <div className="mb-10 rounded-2xl border-2 border-[#8b7355]/25 bg-[#faf9f7] p-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8b7355]">Popular in {city.name}</p>
+              <h2 className="mt-2 font-display text-xl font-semibold text-[#1e2d3d]">Other situations homeowners here often search</h2>
+              <p className="mt-2 text-sm text-warmgray">
+                Based on your area—we surface what people near you ask about most. Open a page built for that situation in {city.name}.
+              </p>
+              <ul className="mt-4 flex flex-wrap gap-2">
+                {popularHere.map((p) => (
+                  <li key={p.slug}>
+                    <Link
+                      href={`/sell/${p.slug}/${city.slug}`}
+                      className="inline-flex rounded-lg border border-[#8b7355]/40 bg-white px-4 py-2 text-sm font-semibold text-[#1e2d3d] transition hover:border-[#8b7355] hover:bg-[#8b7355]/5"
+                    >
+                      {p.shortLabel}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           <div className="grid gap-10 lg:grid-cols-3">
             <div className="lg:col-span-2 space-y-8">
               <div>
