@@ -7,7 +7,7 @@ import { useState } from 'react';
 
 const navLinks = [
   { href: '/', label: 'Home' },
-  { href: '/sell', label: 'Areas' },
+  { href: '/areas', label: 'Areas' },
   { href: '/how-we-work', label: 'How It Works' },
   { href: '/probate-help', label: 'Probate' },
   { href: '/#faq', label: 'FAQ' },
@@ -39,7 +39,7 @@ export default function Header() {
               className={`text-sm font-medium tracking-wide whitespace-nowrap transition ${
                 pathname === link.href ||
                 (link.href === '/#faq' && pathname === '/') ||
-                (link.href === '/sell' && pathname.startsWith('/sell'))
+                (link.href === '/areas' && (pathname.startsWith('/areas') || pathname.startsWith('/sell')))
                   ? 'text-black'
                   : 'text-gray-600 hover:text-black'
               }`}

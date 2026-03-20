@@ -19,6 +19,8 @@ export type SeoCity = {
   county: string;
   /** Representative ZIPs for copy + schema (not every zip—add over time) */
   zips: string[];
+  /** Situations common in this area (for "popular in this area" sorting) */
+  popularSituations?: string[];
 };
 
 export const SELLER_SITUATIONS: SellerSituation[] = [
@@ -104,18 +106,18 @@ export const SELLER_SITUATIONS: SellerSituation[] = [
 
 /** Major cities across Central/Northern CA service footprint (expand anytime) */
 export const SEO_CITIES: SeoCity[] = [
-  { slug: 'fresno-ca', name: 'Fresno', state: 'CA', county: 'Fresno', zips: ['93710', '93711', '93720', '93722', '93727'] },
+  { slug: 'fresno-ca', name: 'Fresno', state: 'CA', county: 'Fresno', zips: ['93710', '93711', '93720', '93722', '93727'], popularSituations: ['foreclosure', 'inherited-property', 'house-needs-repairs'] },
   { slug: 'clovis-ca', name: 'Clovis', state: 'CA', county: 'Fresno', zips: ['93611', '93612', '93619'] },
   { slug: 'visalia-ca', name: 'Visalia', state: 'CA', county: 'Tulare', zips: ['93277', '93291', '93292'] },
   { slug: 'tulare-ca', name: 'Tulare', state: 'CA', county: 'Tulare', zips: ['93274', '93275'] },
   { slug: 'porterville-ca', name: 'Porterville', state: 'CA', county: 'Tulare', zips: ['93257'] },
   { slug: 'hanford-ca', name: 'Hanford', state: 'CA', county: 'Kings', zips: ['93230'] },
-  { slug: 'bakersfield-ca', name: 'Bakersfield', state: 'CA', county: 'Kern', zips: ['93301', '93308', '93309', '93311'] },
+  { slug: 'bakersfield-ca', name: 'Bakersfield', state: 'CA', county: 'Kern', zips: ['93301', '93308', '93309', '93311'], popularSituations: ['foreclosure', 'vacant-house', 'bad-tenants-rental'] },
   { slug: 'madera-ca', name: 'Madera', state: 'CA', county: 'Madera', zips: ['93637', '93638'] },
   { slug: 'merced-ca', name: 'Merced', state: 'CA', county: 'Merced', zips: ['95340', '95348'] },
   { slug: 'modesto-ca', name: 'Modesto', state: 'CA', county: 'Stanislaus', zips: ['95350', '95355', '95356'] },
   { slug: 'stockton-ca', name: 'Stockton', state: 'CA', county: 'San Joaquin', zips: ['95202', '95207', '95209', '95219'] },
-  { slug: 'sacramento-ca', name: 'Sacramento', state: 'CA', county: 'Sacramento', zips: ['95814', '95816', '95819', '95825', '95831'] },
+  { slug: 'sacramento-ca', name: 'Sacramento', state: 'CA', county: 'Sacramento', zips: ['95814', '95816', '95819', '95825', '95831'], popularSituations: ['divorce', 'inherited-property', 'vacant-house'] },
   { slug: 'roseville-ca', name: 'Roseville', state: 'CA', county: 'Placer', zips: ['95661', '95678'] },
   { slug: 'elk-grove-ca', name: 'Elk Grove', state: 'CA', county: 'Sacramento', zips: ['95624', '95757'] },
   { slug: 'davis-ca', name: 'Davis', state: 'CA', county: 'Yolo', zips: ['95616', '95618'] },
@@ -134,6 +136,13 @@ export const SEO_CITIES: SeoCity[] = [
   { slug: 'sanger-ca', name: 'Sanger', state: 'CA', county: 'Fresno', zips: ['93657'] },
   { slug: 'exeter-ca', name: 'Exeter', state: 'CA', county: 'Tulare', zips: ['93221'] },
   { slug: 'lindsay-ca', name: 'Lindsay', state: 'CA', county: 'Tulare', zips: ['93247'] },
+  // Out-of-state (NV, AZ) — per client request
+  { slug: 'reno-nv', name: 'Reno', state: 'NV', county: 'Washoe', zips: ['89501', '89502', '89503'], popularSituations: ['foreclosure', 'vacant-house', 'house-needs-repairs'] },
+  { slug: 'las-vegas-nv', name: 'Las Vegas', state: 'NV', county: 'Clark', zips: ['89101', '89102', '89107', '89128'], popularSituations: ['foreclosure', 'divorce', 'vacant-house'] },
+  { slug: 'henderson-nv', name: 'Henderson', state: 'NV', county: 'Clark', zips: ['89002', '89011', '89012'], popularSituations: ['foreclosure', 'inherited-property', 'vacant-house'] },
+  { slug: 'phoenix-az', name: 'Phoenix', state: 'AZ', county: 'Maricopa', zips: ['85001', '85003', '85004', '85006', '85008'], popularSituations: ['foreclosure', 'divorce', 'bad-tenants-rental'] },
+  { slug: 'mesa-az', name: 'Mesa', state: 'AZ', county: 'Maricopa', zips: ['85201', '85203', '85204'], popularSituations: ['foreclosure', 'inherited-property', 'vacant-house'] },
+  { slug: 'tucson-az', name: 'Tucson', state: 'AZ', county: 'Pima', zips: ['85701', '85704', '85705', '85710'], popularSituations: ['foreclosure', 'divorce', 'house-needs-repairs'] },
 ];
 
 export function getSituationBySlug(slug: string): SellerSituation | undefined {

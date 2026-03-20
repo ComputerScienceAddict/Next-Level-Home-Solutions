@@ -27,8 +27,11 @@ export default function SellHubPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#8b7355]">Motivated sellers</p>
           <h1 className="mt-2 font-display text-4xl text-white md:text-5xl">Sell your house — by situation & city</h1>
           <p className="mt-6 max-w-2xl text-lg text-white/85">
-            We built these pages around real seller situations and the cities we buy in—so you get relevant answers, not
-            generic fluff. Pick what matches you, then call for a confidential offer.
+            Browse all situations and cities, or{' '}
+            <Link href="/areas" className="underline hover:no-underline">
+              use the Areas picker
+            </Link>{' '}
+            to find your specialized page.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <a href={business.phoneTel} className="btn-premium inline-block">
