@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { business } from '@/config/business';
 import { SEO_CITIES, SELLER_SITUATIONS } from '@/data/seo-targets';
+import { generateWithAI } from '@/lib/ai';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -85,13 +86,13 @@ function heuristicAnalysis(): AnalysisResult {
       situationsConfigured: SELLER_SITUATIONS.length,
     },
     summary:
-      'Heuristic analysis based on configured cities (ZIP count as priority proxy). Add OPENAI_API_KEY for AI-powered market insights and competitive analysis.',
+      'Heuristic analysis based on configured cities (ZIP count as priority proxy). Add GEMINI_API_KEY or OPENAI_API_KEY for AI-powered market insights.',
   };
 }
 
 async function aiAnalysis(): Promise<AnalysisResult | null> {
-  const key = process.env.OPENAI_API_KEY;
-  if (!key) return null;
+  const hasKey = process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY;
+  if (!hasKey) return null;
 
   const prompt = `You are an expert SEO strategist specializing in real estate investor websites (we buy houses companies).
 
@@ -127,32 +128,11 @@ Return ONLY valid JSON (no markdown) with this structure:
 Include all configured cities and situations in your rankings. Be specific and actionable.`;
 
   try {
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${key}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        temperature: 0.5,
-        messages: [
-          {
-            role: 'system',
-            content: 'You are an SEO expert. Return only valid JSON, no markdown formatting or code blocks.',
-          },
-          { role: 'user', content: prompt },
-        ],
-      }),
-    });
-
-    if (!res.ok) {
-      console.error('OpenAI API error:', res.status);
-      return null;
-    }
-
-    const data = await res.json();
-    const text = data?.choices?.[0]?.message?.content?.trim() ?? '';
+    const text = await generateWithAI(
+      prompt,
+      'You are an SEO expert. Return only valid JSON, no markdown formatting or code blocks.'
+    );
+    if (!text) return null;
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) return null;
 
@@ -202,7 +182,7 @@ async function saveAnalysis(analysis: AnalysisResult): Promise<void> {
       market_insights: analysis.summary,
       content_gaps: analysis.contentStrategy.contentGaps,
       priority_actions: analysis.contentStrategy.immediateActions,
-      ai_model: analysis.source === 'ai' ? 'gpt-4o' : null,
+      ai_model: analysis.source === 'ai' ? (process.env.GEMINI_API_KEY ? 'gemini-1.5-flash' : 'gpt-4o') : null,
     });
   } catch (e) {
     console.error('Failed to save analysis:', e);

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { business } from '@/config/business';
 import { getCityBySlug, getSituationBySlug, SEO_CITIES, SELLER_SITUATIONS } from '@/data/seo-targets';
+import { generateWithAI } from '@/lib/ai';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -68,47 +69,19 @@ Return ONLY valid JSON with this exact structure (no markdown, no explanation):
 }`;
 }
 
-async function generateWithOpenAI(prompt: string): Promise<GeneratedContent | null> {
-  const key = process.env.OPENAI_API_KEY;
-  if (!key) return null;
+async function generateContent(prompt: string): Promise<GeneratedContent | null> {
+  const text = await generateWithAI(
+    prompt,
+    'You are an expert SEO copywriter. Return only valid JSON, no markdown formatting.'
+  );
+  if (!text) return null;
 
-  const res = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${key}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'gpt-4o',
-      temperature: 0.7,
-      messages: [
-        {
-          role: 'system',
-          content: 'You are an expert SEO copywriter. Return only valid JSON, no markdown formatting.',
-        },
-        { role: 'user', content: prompt },
-      ],
-    }),
-  });
-
-  if (!res.ok) {
-    console.error('OpenAI API error:', res.status, await res.text());
-    return null;
-  }
-
-  const data = await res.json();
-  const text = data?.choices?.[0]?.message?.content?.trim() ?? '';
-  
   const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
-    console.error('No JSON found in OpenAI response');
-    return null;
-  }
+  if (!jsonMatch) return null;
 
   try {
     return JSON.parse(jsonMatch[0]) as GeneratedContent;
-  } catch (e) {
-    console.error('Failed to parse OpenAI JSON:', e);
+  } catch {
     return null;
   }
 }
@@ -166,9 +139,9 @@ export async function POST(request: NextRequest) {
       generateAll?: boolean;
     };
 
-    if (!process.env.OPENAI_API_KEY) {
+    if (!process.env.GEMINI_API_KEY && !process.env.OPENAI_API_KEY) {
       return NextResponse.json(
-        { error: 'OPENAI_API_KEY not configured. Add it to .env.local to enable AI content generation.' },
+        { error: 'GEMINI_API_KEY or OPENAI_API_KEY required in .env.local for AI content generation.' },
         { status: 400 }
       );
     }
@@ -182,9 +155,10 @@ export async function POST(request: NextRequest) {
           const prompt = buildPrompt(s.slug, c.slug);
           if (!prompt) continue;
 
-          const content = await generateWithOpenAI(prompt);
+          const content = await generateContent(prompt);
           if (content) {
-            const saveResult = await saveToSupabase(s.slug, c.slug, content, 'gpt-4o');
+            const model = process.env.GEMINI_API_KEY ? 'gemini-1.5-flash' : 'gpt-4o';
+            const saveResult = await saveToSupabase(s.slug, c.slug, content, model);
             results.push({ situation: s.slug, city: c.slug, ...saveResult });
           } else {
             results.push({ situation: s.slug, city: c.slug, success: false, error: 'AI generation failed' });
@@ -216,12 +190,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid situation or city slug' }, { status: 400 });
     }
 
-    const content = await generateWithOpenAI(prompt);
+    const content = await generateContent(prompt);
     if (!content) {
       return NextResponse.json({ error: 'AI content generation failed' }, { status: 500 });
     }
 
-    const saveResult = await saveToSupabase(situation, city, content, 'gpt-4o');
+    const model = process.env.GEMINI_API_KEY ? 'gemini-1.5-flash' : 'gpt-4o';
+    const saveResult = await saveToSupabase(situation, city, content, model);
     if (!saveResult.success) {
       return NextResponse.json(
         { error: saveResult.error, content },
@@ -245,6 +220,6 @@ export async function GET() {
     info: 'POST to this endpoint to generate AI SEO content',
     singlePage: { situation: 'foreclosure', city: 'fresno-ca' },
     allPages: { generateAll: true },
-    requires: 'OPENAI_API_KEY in .env.local',
+    requires: 'GEMINI_API_KEY or OPENAI_API_KEY in .env.local',
   });
 }
