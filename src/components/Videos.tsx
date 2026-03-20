@@ -15,12 +15,22 @@ const videos = [
   'https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F679949101854613%2F&show_text=false&width=267&t=0',
 ];
 
+function getPerPage() {
+  if (typeof window === 'undefined') return 3;
+  return window.innerWidth >= 1024 ? 3 : window.innerWidth >= 640 ? 2 : 1;
+}
+
 export default function Videos() {
   const [current, setCurrent] = useState(0);
+  const [perPage, setPerPage] = useState(3); // SSR-safe default; updated after mount
 
-  const perPage = typeof window !== 'undefined' 
-    ? window.innerWidth >= 1024 ? 3 : window.innerWidth >= 640 ? 2 : 1 
-    : 3;
+  useEffect(() => {
+    const update = () => setPerPage(getPerPage());
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
   const maxPage = Math.max(0, Math.ceil(videos.length / perPage) - 1);
   const canPrev = current > 0;
   const canNext = current < maxPage;

@@ -2,18 +2,32 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { requestBrowserLocation } from '@/lib/browser-geolocation';
 import { useDetectArea } from '@/hooks/useDetectArea';
 import { getPreferredSituationSlug } from '@/lib/user-prefs';
 
 /**
- * Homepage block: uses visitor location (IP / Vercel geo) to show popular situations near them.
+ * Homepage block: uses visitor location (GPS when allowed, else IP / Vercel geo) to show popular situations near them.
  */
 export default function LocalForYouHome() {
-  const { data, loading } = useDetectArea();
+  const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const { data, loading } = useDetectArea({
+    enabled: true,
+    lat: gpsCoords?.lat,
+    lng: gpsCoords?.lng,
+  });
   const [preferredSlug, setPreferredSlug] = useState<string | null>(null);
 
   useEffect(() => {
     setPreferredSlug(getPreferredSituationSlug());
+  }, []);
+
+  useEffect(() => {
+    requestBrowserLocation(8000).then((result) => {
+      if (result.status === 'granted') {
+        setGpsCoords({ lat: result.lat, lng: result.lng });
+      }
+    });
   }, []);
 
   if (loading || !data) {

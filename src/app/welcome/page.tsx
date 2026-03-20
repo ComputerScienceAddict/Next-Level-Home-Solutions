@@ -18,21 +18,22 @@ const STATE_TABS = [
 
 export default function WelcomePage() {
   const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number } | null>(null);
-  const [gpsState, setGpsState] = useState<'idle' | 'requesting' | 'granted' | 'denied'>('idle');
-  const gpsRequested = useRef(false);
-  
-  const { data: geo, loading: geoLoading } = useDetectArea(gpsCoords?.lat, gpsCoords?.lng);
+  const [gpsState, setGpsState] = useState<'idle' | 'requesting' | 'granted' | 'denied' | 'skipped'>('idle');
+  const { data: geo, loading: geoLoading } = useDetectArea({
+    enabled: gpsState !== 'idle',
+    lat: gpsCoords?.lat,
+    lng: gpsCoords?.lng,
+  });
+
   const [selectedSituation, setSelectedSituation] = useState<string | null>(null);
   const [selectedCitySlug, setSelectedCitySlug] = useState<string | null>(null);
   const [locationTab, setLocationTab] = useState<'CA' | 'NV' | 'AZ'>('CA');
   const [citySearch, setCitySearch] = useState('');
   const geoCityApplied = useRef(false);
 
-  useEffect(() => {
-    if (gpsRequested.current) return;
-    gpsRequested.current = true;
+  const askForLocation = () => {
     setGpsState('requesting');
-    void requestBrowserLocation(12000).then((result) => {
+    requestBrowserLocation(12000).then((result) => {
       if (result.status === 'granted') {
         setGpsCoords({ lat: result.lat, lng: result.lng });
         setGpsState('granted');
@@ -40,6 +41,14 @@ export default function WelcomePage() {
         setGpsState('denied');
       }
     });
+  };
+
+  // Auto-request location on mount so we can find the nearest city
+  useEffect(() => {
+    if (gpsState === 'idle') {
+      askForLocation();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const statesWithCities = useMemo(
@@ -137,11 +146,39 @@ export default function WelcomePage() {
           Get help for your situation
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-center text-base text-white/80">
-          <strong className="text-white/95">Step 1:</strong> What you&apos;re dealing with.{' '}
-          <strong className="text-white/95">Step 2:</strong> Where the property is (or the closest city we serve).
-          Then we&apos;ll open a page written for <em>that</em> problem in <em>that</em> area.
+          We use your <strong className="text-white/95">location</strong> to find the nearest city we serve, then show
+          what kind of help people in your area look for most.
         </p>
 
+        {/* Location card shown only when waiting for permission or if user wants to skip */}
+        {gpsState === 'idle' && (
+          <div className="mx-auto mt-8 max-w-2xl rounded-2xl border-2 border-[#c9a86c] bg-[#1e2d3d]/95 p-6 shadow-xl">
+            <p className="text-center text-sm font-semibold uppercase tracking-wider text-[#c9a86c]">
+              Finding your location…
+            </p>
+            <p className="mt-3 text-center text-base text-white">
+              Your browser will ask to use your location so we can find the nearest city we serve.
+            </p>
+            <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+              <button
+                type="button"
+                onClick={askForLocation}
+                className="w-full min-h-[52px] rounded-xl bg-[#c9a86c] px-6 py-3 text-center text-base font-bold uppercase tracking-wide text-[#1e2d3d] transition hover:bg-white sm:w-auto"
+              >
+                Use my location
+              </button>
+              <button
+                type="button"
+                onClick={() => setGpsState('skipped')}
+                className="w-full min-h-[48px] rounded-xl border-2 border-white/30 px-6 py-3 text-center text-sm font-semibold text-white/90 transition hover:border-white/60 sm:w-auto"
+              >
+                Skip — I&apos;ll pick my city manually
+              </button>
+            </div>
+          </div>
+        )}
+
+        {gpsState !== 'idle' && (
         <div className="mx-auto mt-8 max-w-2xl rounded-xl border-2 border-[#8b7355]/50 bg-[#1e2d3d]/95 px-4 py-3 text-center text-sm text-[#f0ebe4] shadow-lg">
           {gpsState === 'requesting' && (
             <span className="text-[#c9a86c]/90">
@@ -158,18 +195,23 @@ export default function WelcomePage() {
                   ? `Near ${geo.detectedCityName}, ${geo.city.state}`
                   : `${geo.city.name}, ${geo.city.state}`}
               </span>
-              <span> — we&apos;ve pre-selected {geo.city.name} below; change it if needed.</span>
+              <span> — we&apos;ve set your area. Pick your situation above.</span>
             </>
           )}
           {!geoLoading && geo && (!('matched' in geo) || !geo.matched) && (
             <span className="text-[#d4cfc4]">
               {gpsState === 'denied'
                 ? "Location access denied—pick your city manually below."
-                : "We couldn't place your area automatically—pick your city manually below."}
+                : gpsState === 'skipped'
+                  ? "Pick your city manually below."
+                  : "We couldn't place your area automatically—pick your city manually below."}
             </span>
           )}
         </div>
+        )}
 
+        {gpsState !== 'idle' && (
+        <>
         {/* Step 1: situation */}
         <h2 className="mt-12 text-center font-display text-xl font-semibold text-white md:text-2xl">
           1. What situation are you in?
@@ -203,8 +245,8 @@ export default function WelcomePage() {
           })}
         </div>
 
-        {/* Step 2: location — tabs + grid + search */}
-        {selectedSituation && (
+        {/* Step 2: location — only when we couldn't get it from GPS (denied/skipped/no match) */}
+        {selectedSituation && !(geo && 'matched' in geo && geo.matched) && (
           <div className="mt-14 scroll-mt-24">
             <h2 className="text-center font-display text-xl font-semibold text-white md:text-2xl">
               2. Where&apos;s the property?
@@ -295,6 +337,14 @@ export default function WelcomePage() {
           </div>
         )}
 
+        {selectedSituation && geo && 'matched' in geo && geo.matched && selectedCity && (
+          <p className="mt-8 text-center text-sm text-[#d4cfc4]">
+            Your area: <strong className="text-[#c9a86c]">{selectedCity.name}, {selectedCity.state}</strong>
+            {' · '}
+            <Link href="/areas" className="underline-offset-2 hover:text-[#c9a86c] hover:underline">Change</Link>
+          </p>
+        )}
+
         <div className="mt-12 flex flex-col items-center gap-4 border-t border-white/10 pt-10 sm:flex-row sm:flex-wrap sm:justify-center">
           <button
             type="button"
@@ -317,6 +367,8 @@ export default function WelcomePage() {
 
         {!canGetHelp && selectedSituation && !selectedCitySlug && (
           <p className="mt-4 text-center text-xs text-amber-200/80">Select a city above to open your help page.</p>
+        )}
+        </>
         )}
 
         <p className="mt-10 text-center text-xs text-white/45">

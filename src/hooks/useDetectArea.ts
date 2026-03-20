@@ -81,9 +81,20 @@ function loadDetectArea(lat?: number, lng?: number): Promise<DetectAreaResult> {
   return sharedFetch;
 }
 
-export function useDetectArea(gpsLat?: number, gpsLng?: number) {
+export type UseDetectAreaOptions = {
+  /** When false, does not fetch; use when waiting for user to grant location. */
+  enabled?: boolean;
+  lat?: number;
+  lng?: number;
+};
+
+export function useDetectArea(opts?: UseDetectAreaOptions | number, gpsLng?: number) {
+  const lat = typeof opts === 'object' ? opts?.lat : opts;
+  const lng = typeof opts === 'object' ? opts?.lng : gpsLng;
+  const enabled = typeof opts === 'object' ? opts?.enabled !== false : true;
+
   const [data, setData] = useState<DetectAreaResult | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
@@ -102,8 +113,14 @@ export function useDetectArea(gpsLat?: number, gpsLng?: number) {
   }, []);
 
   useEffect(() => {
+    if (!enabled) {
+      setData(null);
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
-    void loadDetectArea(gpsLat, gpsLng).then((payload) => {
+    setLoading(true);
+    void loadDetectArea(lat, lng).then((payload) => {
       if (!cancelled) {
         setData(payload);
         setLoading(false);
@@ -112,7 +129,7 @@ export function useDetectArea(gpsLat?: number, gpsLng?: number) {
     return () => {
       cancelled = true;
     };
-  }, [gpsLat, gpsLng]);
+  }, [enabled, lat, lng]);
 
   return { data, loading, error, refresh };
 }
