@@ -250,7 +250,7 @@ export default function AreasPage() {
         <div className="mx-auto max-w-5xl px-5">
           <p className="text-sm text-warmgray">
             Don&apos;t see your city? <Link href="/contact" className="font-medium text-[#8b7355] hover:underline">Contact us</Link>—
-            we may still buy in your area. California, Nevada, and Arizona covered.
+            we may still buy in your area. FL, TX, GA, OH, AL, VA, NY, NJ, AZ, LA, KS, NV & CA covered.
           </p>
         </div>
       </section>

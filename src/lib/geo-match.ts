@@ -9,6 +9,16 @@ const STATE_HUB_SLUG: Record<string, string> = {
   CA: 'fresno-ca',
   NV: 'las-vegas-nv',
   AZ: 'phoenix-az',
+  FL: 'miami-fl',
+  TX: 'houston-tx',
+  GA: 'atlanta-ga',
+  OH: 'columbus-oh',
+  AL: 'birmingham-al',
+  VA: 'richmond-va',
+  NY: 'new-york-ny',
+  NJ: 'newark-nj',
+  LA: 'new-orleans-la',
+  KS: 'wichita-ks',
 };
 
 const DEFAULT_POPULAR = ['foreclosure', 'inherited-property', 'house-needs-repairs'] as const;

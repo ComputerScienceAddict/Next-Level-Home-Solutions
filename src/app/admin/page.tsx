@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import LeadsMap from '@/components/LeadsMap';
 
 const ADMIN_USER = 'admin';
 const ADMIN_PASS = 'admin123';
@@ -270,7 +271,10 @@ export default function AdminLeadsPage() {
           </div>
         )}
 
-        {/* Foreclosures */}
+        {/* Map + Tables layout */}
+        <div className="mt-8 grid gap-8 xl:grid-cols-[1fr_400px]">
+          <div className="order-2 xl:order-1">
+            {/* Foreclosures */}
         {foreclosures.length > 0 && (
           <div className="mt-10">
             <h2 className="font-display text-xl font-semibold text-black">Foreclosures ({foreclosures.length})</h2>
@@ -456,11 +460,18 @@ export default function AdminLeadsPage() {
           </div>
         )}
 
-        {currentLeads.length === 0 && !apiError && (
-          <div className="mt-10 rounded-xl border border-black/10 bg-white p-12 text-center">
-            <p className="text-warmgray">No active listings at this time.</p>
+            {currentLeads.length === 0 && !apiError && (
+              <div className="mt-10 rounded-xl border border-black/10 bg-white p-12 text-center">
+                <p className="text-warmgray">No active listings at this time.</p>
+              </div>
+            )}
           </div>
-        )}
+
+          {/* Map sidebar */}
+          <div className="order-1 xl:order-2 xl:sticky xl:top-24 xl:self-start">
+            <LeadsMap leads={currentLeads} />
+          </div>
+        </div>
       </div>
     </section>
   );

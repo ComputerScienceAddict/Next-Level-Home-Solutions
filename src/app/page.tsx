@@ -95,7 +95,7 @@ export default function HomePage() {
                   </div>
                 </div>
                 <p className="mt-8 border-t border-white/10 pt-6 text-sm text-white/70">
-                  Central Valley · Las Vegas · Sonoma County. Inherited, foreclosure, relocating—we buy as-is. No repairs. No commissions. No showings.
+                  14 states: FL · TX · GA · OH · AL · VA · NY · NJ · AZ · LA · KS · NV · CA. Inherited, foreclosure, relocating—we buy as-is. No repairs. No commissions. No showings.
                 </p>
               </div>
             </div>

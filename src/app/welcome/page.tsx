@@ -11,9 +11,19 @@ import { setHomeEntryCookieClient } from '@/lib/entry-cookie';
 import { PREFERRED_CITY_KEY, PREFERRED_SITUATION_KEY } from '@/lib/user-prefs';
 
 const STATE_TABS = [
-  { code: 'CA' as const, label: 'California' },
-  { code: 'NV' as const, label: 'Nevada' },
+  { code: 'AL' as const, label: 'Alabama' },
   { code: 'AZ' as const, label: 'Arizona' },
+  { code: 'CA' as const, label: 'California' },
+  { code: 'FL' as const, label: 'Florida' },
+  { code: 'GA' as const, label: 'Georgia' },
+  { code: 'KS' as const, label: 'Kansas' },
+  { code: 'LA' as const, label: 'Louisiana' },
+  { code: 'NJ' as const, label: 'New Jersey' },
+  { code: 'NV' as const, label: 'Nevada' },
+  { code: 'NY' as const, label: 'New York' },
+  { code: 'OH' as const, label: 'Ohio' },
+  { code: 'TX' as const, label: 'Texas' },
+  { code: 'VA' as const, label: 'Virginia' },
 ];
 
 export default function WelcomePage() {
@@ -27,7 +37,7 @@ export default function WelcomePage() {
 
   const [selectedSituation, setSelectedSituation] = useState<string | null>(null);
   const [selectedCitySlug, setSelectedCitySlug] = useState<string | null>(null);
-  const [locationTab, setLocationTab] = useState<'CA' | 'NV' | 'AZ'>('CA');
+  const [locationTab, setLocationTab] = useState<string>('CA');
   const [citySearch, setCitySearch] = useState('');
   const geoCityApplied = useRef(false);
 
@@ -56,15 +66,17 @@ export default function WelcomePage() {
     []
   );
 
+  const servedStates = useMemo(() => STATE_TABS.map((t) => t.code) as string[], []);
+
   useEffect(() => {
     if (geoCityApplied.current) return;
     if (geo && 'matched' in geo && geo.matched) {
       setSelectedCitySlug(geo.city.slug);
       const st = geo.city.state;
-      if (st === 'CA' || st === 'NV' || st === 'AZ') setLocationTab(st);
+      if (servedStates.includes(st)) setLocationTab(st);
       geoCityApplied.current = true;
     }
-  }, [geo]);
+  }, [geo, servedStates]);
 
   const citiesInTab = useMemo(
     () => SEO_CITIES.filter((c) => c.state === locationTab),

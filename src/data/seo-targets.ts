@@ -108,10 +108,24 @@ export const SELLER_SITUATIONS: SellerSituation[] = [
 export const SEO_CITIES: SeoCity[] = [
   { slug: 'fresno-ca', name: 'Fresno', state: 'CA', county: 'Fresno', zips: ['93710', '93711', '93720', '93722', '93727'], popularSituations: ['foreclosure', 'inherited-property', 'house-needs-repairs'] },
   { slug: 'clovis-ca', name: 'Clovis', state: 'CA', county: 'Fresno', zips: ['93611', '93612', '93619'] },
-  { slug: 'visalia-ca', name: 'Visalia', state: 'CA', county: 'Tulare', zips: ['93277', '93291', '93292'] },
+  { slug: 'visalia-ca', name: 'Visalia', state: 'CA', county: 'Tulare', zips: ['93277', '93291', '93292'], popularSituations: ['foreclosure', 'inherited-property', 'house-needs-repairs'] },
   { slug: 'tulare-ca', name: 'Tulare', state: 'CA', county: 'Tulare', zips: ['93274', '93275'] },
   { slug: 'porterville-ca', name: 'Porterville', state: 'CA', county: 'Tulare', zips: ['93257'] },
-  { slug: 'hanford-ca', name: 'Hanford', state: 'CA', county: 'Kings', zips: ['93230'] },
+  { slug: 'dinuba-ca', name: 'Dinuba', state: 'CA', county: 'Tulare', zips: ['93618'] },
+  { slug: 'farmersville-ca', name: 'Farmersville', state: 'CA', county: 'Tulare', zips: ['93223'] },
+  { slug: 'woodlake-ca', name: 'Woodlake', state: 'CA', county: 'Tulare', zips: ['93286'] },
+  { slug: 'earlimart-ca', name: 'Earlimart', state: 'CA', county: 'Tulare', zips: ['93219'] },
+  { slug: 'goshen-ca', name: 'Goshen', state: 'CA', county: 'Tulare', zips: ['93227'] },
+  { slug: 'pixley-ca', name: 'Pixley', state: 'CA', county: 'Tulare', zips: ['93256'] },
+  { slug: 'strathmore-ca', name: 'Strathmore', state: 'CA', county: 'Tulare', zips: ['93267'] },
+  { slug: 'tipton-ca', name: 'Tipton', state: 'CA', county: 'Tulare', zips: ['93272'] },
+  { slug: 'hanford-ca', name: 'Hanford', state: 'CA', county: 'Kings', zips: ['93230'], popularSituations: ['foreclosure', 'inherited-property', 'vacant-house'] },
+  { slug: 'corcoran-ca', name: 'Corcoran', state: 'CA', county: 'Kings', zips: ['93212'] },
+  { slug: 'lemoore-ca', name: 'Lemoore', state: 'CA', county: 'Kings', zips: ['93245', '93246'] },
+  { slug: 'avenal-ca', name: 'Avenal', state: 'CA', county: 'Kings', zips: ['93204'] },
+  { slug: 'armona-ca', name: 'Armona', state: 'CA', county: 'Kings', zips: ['93202'] },
+  { slug: 'stratford-ca', name: 'Stratford', state: 'CA', county: 'Kings', zips: ['93266'] },
+  { slug: 'kettleman-city-ca', name: 'Kettleman City', state: 'CA', county: 'Kings', zips: ['93239'] },
   { slug: 'bakersfield-ca', name: 'Bakersfield', state: 'CA', county: 'Kern', zips: ['93301', '93308', '93309', '93311'], popularSituations: ['foreclosure', 'vacant-house', 'bad-tenants-rental'] },
   { slug: 'madera-ca', name: 'Madera', state: 'CA', county: 'Madera', zips: ['93637', '93638'] },
   { slug: 'merced-ca', name: 'Merced', state: 'CA', county: 'Merced', zips: ['95340', '95348'] },
@@ -143,6 +157,54 @@ export const SEO_CITIES: SeoCity[] = [
   { slug: 'phoenix-az', name: 'Phoenix', state: 'AZ', county: 'Maricopa', zips: ['85001', '85003', '85004', '85006', '85008'], popularSituations: ['foreclosure', 'divorce', 'bad-tenants-rental'] },
   { slug: 'mesa-az', name: 'Mesa', state: 'AZ', county: 'Maricopa', zips: ['85201', '85203', '85204'], popularSituations: ['foreclosure', 'inherited-property', 'vacant-house'] },
   { slug: 'tucson-az', name: 'Tucson', state: 'AZ', county: 'Pima', zips: ['85701', '85704', '85705', '85710'], popularSituations: ['foreclosure', 'divorce', 'house-needs-repairs'] },
+  { slug: 'scottsdale-az', name: 'Scottsdale', state: 'AZ', county: 'Maricopa', zips: ['85250', '85251', '85254'] },
+  // Florida
+  { slug: 'miami-fl', name: 'Miami', state: 'FL', county: 'Miami-Dade', zips: ['33101', '33125', '33126', '33130', '33131'], popularSituations: ['foreclosure', 'vacant-house', 'inherited-property'] },
+  { slug: 'orlando-fl', name: 'Orlando', state: 'FL', county: 'Orange', zips: ['32801', '32803', '32804', '32806'], popularSituations: ['foreclosure', 'divorce', 'vacant-house'] },
+  { slug: 'tampa-fl', name: 'Tampa', state: 'FL', county: 'Hillsborough', zips: ['33602', '33605', '33609', '33612'], popularSituations: ['foreclosure', 'inherited-property', 'bad-tenants-rental'] },
+  { slug: 'jacksonville-fl', name: 'Jacksonville', state: 'FL', county: 'Duval', zips: ['32202', '32204', '32205', '32206'] },
+  { slug: 'fort-lauderdale-fl', name: 'Fort Lauderdale', state: 'FL', county: 'Broward', zips: ['33301', '33304', '33308'] },
+  // Texas
+  { slug: 'houston-tx', name: 'Houston', state: 'TX', county: 'Harris', zips: ['77002', '77003', '77004', '77005', '77006'], popularSituations: ['foreclosure', 'vacant-house', 'house-needs-repairs'] },
+  { slug: 'dallas-tx', name: 'Dallas', state: 'TX', county: 'Dallas', zips: ['75201', '75204', '75206', '75214', '75218'], popularSituations: ['foreclosure', 'divorce', 'inherited-property'] },
+  { slug: 'san-antonio-tx', name: 'San Antonio', state: 'TX', county: 'Bexar', zips: ['78202', '78205', '78207', '78209'], popularSituations: ['foreclosure', 'vacant-house', 'bad-tenants-rental'] },
+  { slug: 'austin-tx', name: 'Austin', state: 'TX', county: 'Travis', zips: ['78701', '78702', '78703', '78704'], popularSituations: ['foreclosure', 'divorce', 'inherited-property'] },
+  { slug: 'fort-worth-tx', name: 'Fort Worth', state: 'TX', county: 'Tarrant', zips: ['76102', '76103', '76104'] },
+  // Georgia
+  { slug: 'atlanta-ga', name: 'Atlanta', state: 'GA', county: 'Fulton', zips: ['30303', '30305', '30306', '30308', '30309'], popularSituations: ['foreclosure', 'divorce', 'vacant-house'] },
+  { slug: 'augusta-ga', name: 'Augusta', state: 'GA', county: 'Richmond', zips: ['30901', '30904', '30906'] },
+  { slug: 'savannah-ga', name: 'Savannah', state: 'GA', county: 'Chatham', zips: ['31401', '31404', '31405'] },
+  // Ohio
+  { slug: 'columbus-oh', name: 'Columbus', state: 'OH', county: 'Franklin', zips: ['43201', '43202', '43203', '43204'], popularSituations: ['foreclosure', 'inherited-property', 'vacant-house'] },
+  { slug: 'cleveland-oh', name: 'Cleveland', state: 'OH', county: 'Cuyahoga', zips: ['44102', '44103', '44105', '44106'], popularSituations: ['foreclosure', 'house-needs-repairs', 'vacant-house'] },
+  { slug: 'cincinnati-oh', name: 'Cincinnati', state: 'OH', county: 'Hamilton', zips: ['45202', '45203', '45204', '45206'] },
+  // Alabama
+  { slug: 'birmingham-al', name: 'Birmingham', state: 'AL', county: 'Jefferson', zips: ['35203', '35204', '35205', '35211'], popularSituations: ['foreclosure', 'inherited-property', 'house-needs-repairs'] },
+  { slug: 'huntsville-al', name: 'Huntsville', state: 'AL', county: 'Madison', zips: ['35801', '35802', '35803'] },
+  { slug: 'montgomery-al', name: 'Montgomery', state: 'AL', county: 'Montgomery', zips: ['36104', '36105', '36106'] },
+  { slug: 'mobile-al', name: 'Mobile', state: 'AL', county: 'Mobile', zips: ['36602', '36603', '36604'] },
+  // Virginia
+  { slug: 'richmond-va', name: 'Richmond', state: 'VA', county: 'Richmond City', zips: ['23219', '23220', '23221', '23222'], popularSituations: ['foreclosure', 'inherited-property', 'vacant-house'] },
+  { slug: 'virginia-beach-va', name: 'Virginia Beach', state: 'VA', county: 'Virginia Beach', zips: ['23451', '23452', '23454'] },
+  { slug: 'norfolk-va', name: 'Norfolk', state: 'VA', county: 'Norfolk', zips: ['23502', '23503', '23504'] },
+  // New York
+  { slug: 'new-york-ny', name: 'New York', state: 'NY', county: 'New York', zips: ['10001', '10002', '10003', '10011'], popularSituations: ['foreclosure', 'divorce', 'inherited-property'] },
+  { slug: 'buffalo-ny', name: 'Buffalo', state: 'NY', county: 'Erie', zips: ['14201', '14202', '14203'], popularSituations: ['foreclosure', 'house-needs-repairs', 'vacant-house'] },
+  { slug: 'rochester-ny', name: 'Rochester', state: 'NY', county: 'Monroe', zips: ['14604', '14605', '14607'] },
+  { slug: 'albany-ny', name: 'Albany', state: 'NY', county: 'Albany', zips: ['12202', '12205', '12206'] },
+  // New Jersey
+  { slug: 'newark-nj', name: 'Newark', state: 'NJ', county: 'Essex', zips: ['07102', '07103', '07104'], popularSituations: ['foreclosure', 'inherited-property', 'vacant-house'] },
+  { slug: 'jersey-city-nj', name: 'Jersey City', state: 'NJ', county: 'Hudson', zips: ['07302', '07304', '07305'] },
+  { slug: 'trenton-nj', name: 'Trenton', state: 'NJ', county: 'Mercer', zips: ['08608', '08609', '08610'] },
+  { slug: 'camden-nj', name: 'Camden', state: 'NJ', county: 'Camden', zips: ['08102', '08103', '08104'] },
+  // Louisiana
+  { slug: 'new-orleans-la', name: 'New Orleans', state: 'LA', county: 'Orleans', zips: ['70112', '70113', '70115', '70116'], popularSituations: ['foreclosure', 'inherited-property', 'vacant-house'] },
+  { slug: 'baton-rouge-la', name: 'Baton Rouge', state: 'LA', county: 'East Baton Rouge', zips: ['70801', '70802', '70806'] },
+  { slug: 'shreveport-la', name: 'Shreveport', state: 'LA', county: 'Caddo', zips: ['71101', '71103', '71104'] },
+  // Kansas
+  { slug: 'wichita-ks', name: 'Wichita', state: 'KS', county: 'Sedgwick', zips: ['67202', '67203', '67204'], popularSituations: ['foreclosure', 'inherited-property', 'vacant-house'] },
+  { slug: 'kansas-city-ks', name: 'Kansas City', state: 'KS', county: 'Wyandotte', zips: ['66101', '66102', '66104'] },
+  { slug: 'overland-park-ks', name: 'Overland Park', state: 'KS', county: 'Johnson', zips: ['66204', '66210', '66211'] },
 ];
 
 export function getSituationBySlug(slug: string): SellerSituation | undefined {

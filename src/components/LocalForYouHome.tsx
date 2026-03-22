@@ -44,7 +44,7 @@ export default function LocalForYouHome() {
     return (
       <section className="border-b border-black/10 bg-gradient-to-r from-[#1e2d3d] to-[#2a3d52] py-8">
         <div className="mx-auto max-w-5xl px-5 text-center sm:text-left">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#c9a86c]">California · Nevada · Arizona</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#c9a86c]">14 states: FL · TX · GA · OH · AL · VA · NY · NJ · AZ · LA · KS · NV · CA</p>
           <h2 className="mt-2 font-display text-2xl text-white md:text-3xl">Find help for your city & situation</h2>
           <p className="mt-2 max-w-2xl text-sm text-white/75">
             Pick your area and what you&apos;re dealing with—we&apos;ll show what&apos;s most common there and your personalized page.
