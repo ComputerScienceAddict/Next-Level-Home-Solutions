@@ -49,6 +49,7 @@ export default function AdminLeadsPage() {
   const [apiError, setApiError] = useState('');
   const [lastFetchMessage, setLastFetchMessage] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [selectedState, setSelectedState] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -187,7 +188,12 @@ export default function AdminLeadsPage() {
   }
 
   // Only show listings with status "active" (exclude Pending, postponed, sold, cancelled, closed, etc.)
-  const currentLeads = leads.filter((l) => (l.attributes?.saleStatus || '').toLowerCase() === 'active');
+  const activeLeads = leads.filter((l) => (l.attributes?.saleStatus || '').toLowerCase() === 'active');
+  
+  // Filter by selected state if one is selected
+  const currentLeads = selectedState
+    ? activeLeads.filter((l) => (l.attributes?.state || '').toUpperCase() === selectedState)
+    : activeLeads;
 
   const foreclosures = currentLeads.filter((l) => l.attributes?.recordType?.toLowerCase() === 'foreclosures');
   const probates = currentLeads.filter((l) => l.attributes?.recordType?.toLowerCase() === 'probates');
@@ -205,8 +211,17 @@ export default function AdminLeadsPage() {
           <div>
             <h1 className="font-display text-3xl font-semibold text-[#1e2d3d]">Leads Dashboard</h1>
             <p className="mt-1 text-sm text-warmgray">
-              {currentLeads.length} active listings — {foreclosures.length} foreclosures, {probates.length} probates, {liens.length} liens, {estateSales.length} estate sales
+              {currentLeads.length} active listings{selectedState ? ` in ${selectedState}` : ''} — {foreclosures.length} foreclosures, {probates.length} probates, {liens.length} liens, {estateSales.length} estate sales
             </p>
+            {selectedState && (
+              <button
+                type="button"
+                onClick={() => setSelectedState(null)}
+                className="mt-1 text-xs text-[#8b7355] hover:underline"
+              >
+                ← Show all states ({activeLeads.length} total)
+              </button>
+            )}
             {lastUpdated && (
               <p className="mt-1 text-xs text-warmgray/60">
                 Last updated: {lastUpdated.toLocaleTimeString()}
@@ -469,7 +484,11 @@ export default function AdminLeadsPage() {
 
           {/* Map sidebar */}
           <div className="order-1 xl:order-2 xl:sticky xl:top-24 xl:self-start">
-            <LeadsMap leads={currentLeads} />
+            <LeadsMap 
+              leads={activeLeads} 
+              selectedState={selectedState}
+              onStateSelect={setSelectedState}
+            />
           </div>
         </div>
       </div>
