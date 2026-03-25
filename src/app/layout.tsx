@@ -4,7 +4,8 @@ import { Instrument_Serif, IBM_Plex_Sans } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { SITE_HOUSES_BACKGROUND_URL } from '@/config/site-assets';
+import { business } from '@/config/business';
+import { SITE_HOUSES_BACKGROUND_URL, SITE_OG_IMAGE_PATH } from '@/config/site-assets';
 
 const instrument = Instrument_Serif({
   weight: ['400'],
@@ -20,25 +21,37 @@ const plex = IBM_Plex_Sans({
   display: 'swap',
 });
 
+const ogDescription =
+  'Get a cash offer under 24Hr. Sell as-is, no commissions. Foreclosure help and fast closings. Call for a no-obligation offer.';
+
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://nextlevelhomesolutions.com'),
-  title: 'Next Level Home Solutions | Sell Your Home Fast',
-  description:
-    'Facing foreclosure? We help homeowners sell quickly. Cash offers, sell as-is, no commissions. Close in as little as 7 days. Call 559-991-2190.',
+  title: {
+    default: `Get a cash offer under 24Hr! | ${business.name}`,
+    template: `%s | ${business.name}`,
+  },
+  description: ogDescription,
   keywords: ['sell house fast', 'cash home buyers', 'foreclosure help', 'sell as-is', 'Fresno home buyers', 'avoid foreclosure'],
-  authors: [{ name: 'Next Level Home Solutions' }],
+  authors: [{ name: business.name }],
   openGraph: {
     type: 'website',
     locale: 'en_US',
     url: '/',
-    siteName: 'Next Level Home Solutions',
-    title: 'Next Level Home Solutions | Sell Your Home Fast',
-    description: 'Facing foreclosure? We help homeowners sell quickly. Cash offers, sell as-is, no commissions. Close in as little as 7 days.',
+    siteName: business.name,
+    title: 'Get a cash offer under 24Hr!',
+    description: ogDescription,
+    images: [
+      {
+        url: SITE_OG_IMAGE_PATH,
+        alt: `${business.name} — logo`,
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Next Level Home Solutions | Sell Your Home Fast',
-    description: 'Facing foreclosure? We help homeowners sell quickly. Cash offers, sell as-is, no commissions.',
+    title: 'Get a cash offer under 24Hr!',
+    description: ogDescription,
+    images: [SITE_OG_IMAGE_PATH],
   },
   robots: {
     index: true,

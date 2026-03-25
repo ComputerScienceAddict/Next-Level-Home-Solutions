@@ -16,6 +16,8 @@ export default function AreasPage() {
   useEffect(() => {
     if (!geo || !('matched' in geo) || !geo.matched) return;
     if (userPickedCity.current) return;
+    // Rough IP → state hub is approximate; don't pre-select Fresno (etc.) — user must pick their city.
+    if (geo.approximate) return;
     setSelectedCity(geo.city.slug);
     setViewMode('location-first');
   }, [geo]);
@@ -45,7 +47,7 @@ export default function AreasPage() {
 
   return (
     <>
-      <section className="relative min-h-[32vh] bg-[#2a2520] py-14 md:py-18">
+      <section className="relative min-h-[min(36vh,320px)] overflow-hidden bg-[#2a2520] py-10 sm:min-h-[32vh] sm:py-14 md:py-16">
         <div
           className="absolute inset-0 opacity-30"
           style={{
@@ -53,29 +55,34 @@ export default function AreasPage() {
             backgroundSize: '24px 24px',
           }}
         />
-        <div className="relative mx-auto max-w-5xl px-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#8b7355]">Find your page</p>
-          <h1 className="mt-2 font-display text-4xl text-white md:text-5xl">Areas We Serve</h1>
-          <p className="mt-6 max-w-2xl text-lg text-white/85">
+        <div className="relative mx-auto max-w-5xl px-4 sm:px-5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#c9a86c] sm:text-xs sm:tracking-[0.25em]">
+            Find your page
+          </p>
+          <h1 className="mt-2 font-display text-[1.75rem] leading-tight text-white sm:text-4xl md:text-5xl">Areas We Serve</h1>
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/88 sm:mt-6 sm:text-lg">
             We use your general location (not exact address) to highlight what&apos;s popular in your area and open the
             right page. You can change city anytime.
           </p>
           {geo && 'matched' in geo && geo.matched && (
-            <p className="mt-4 max-w-2xl rounded-lg border border-[#c9a86c]/40 bg-black/20 px-4 py-3 text-sm text-white/90">
-              <span className="font-semibold text-[#c9a86c]">
+            <p className="mt-4 max-w-2xl rounded-xl border border-[#c9a86c]/40 bg-black/25 px-4 py-3 text-sm leading-relaxed text-white/90 sm:px-5">
+              <span className="font-semibold text-[#e8d4a8]">
                 {geo.approximate && geo.detectedCityName
                   ? `Near ${geo.detectedCityName}, ${geo.city.state}`
-                  : `${geo.city.name}, ${geo.city.state}`}
+                  : geo.approximate
+                    ? `${geo.city.state} (general area)`
+                    : `${geo.city.name}, ${geo.city.state}`}
               </span>
-              {geo.approximate && geo.detectedCityName
-                ? ` — showing our ${geo.city.name} hub & situations people ask about there.`
+              {geo.approximate
+                ? ' — pick your city below; we don’t auto-select a default hub.'
                 : ' — popular situations for your area are listed first below.'}
             </p>
           )}
-          <div className="mt-6 flex flex-wrap gap-3">
+          <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-3">
             <button
+              type="button"
               onClick={() => setViewMode('situation-first')}
-              className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+              className={`touch-manipulation min-h-[48px] rounded-xl px-4 py-3 text-sm font-semibold transition sm:min-h-0 sm:py-2 ${
                 viewMode === 'situation-first'
                   ? 'bg-[#8b7355] text-white'
                   : 'bg-white/10 text-white/80 hover:bg-white/20'
@@ -84,8 +91,9 @@ export default function AreasPage() {
               Pick situation first
             </button>
             <button
+              type="button"
               onClick={() => setViewMode('location-first')}
-              className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+              className={`touch-manipulation min-h-[48px] rounded-xl px-4 py-3 text-sm font-semibold transition sm:min-h-0 sm:py-2 ${
                 viewMode === 'location-first'
                   ? 'bg-[#8b7355] text-white'
                   : 'bg-white/10 text-white/80 hover:bg-white/20'
@@ -97,8 +105,8 @@ export default function AreasPage() {
         </div>
       </section>
 
-      <section className="py-12">
-        <div className="mx-auto max-w-5xl px-5">
+      <section className="py-8 sm:py-12">
+        <div className="mx-auto max-w-5xl px-4 sm:px-5">
           {viewMode === 'situation-first' ? (
             <>
               <h2 className="font-display text-2xl font-semibold text-[#1e2d3d]">1. What&apos;s your situation?</h2>
@@ -110,9 +118,10 @@ export default function AreasPage() {
                     SEO_CITIES.find((c) => c.slug === selectedCity)?.popularSituations?.includes(s.slug);
                   return (
                     <button
+                      type="button"
                       key={s.slug}
                       onClick={() => setSelectedSituation(s.slug)}
-                      className={`rounded-xl border-2 p-5 text-left transition ${
+                      className={`touch-manipulation min-h-[52px] rounded-xl border-2 p-4 text-left transition sm:min-h-0 sm:p-5 ${
                         selectedSituation === s.slug
                           ? 'border-[#8b7355] bg-[#faf9f7]'
                           : 'border-black/10 bg-white hover:border-[#8b7355]/40'
@@ -139,12 +148,13 @@ export default function AreasPage() {
                         <div className="flex flex-wrap gap-2">
                           {SEO_CITIES.filter((c) => c.state === state).map((c) => (
                             <button
+                              type="button"
                               key={c.slug}
                               onClick={() => {
                                 userPickedCity.current = true;
                                 setSelectedCity(c.slug);
                               }}
-                              className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                              className={`touch-manipulation min-h-[44px] rounded-xl px-3.5 py-2.5 text-sm font-medium transition sm:min-h-0 sm:rounded-lg sm:px-4 sm:py-2 ${
                                 selectedCity === c.slug
                                   ? 'bg-[#8b7355] text-white'
                                   : 'bg-[#f0ebe4] text-[#1e2d3d] hover:bg-[#8b7355]/20'
@@ -171,13 +181,14 @@ export default function AreasPage() {
                     <div className="flex flex-wrap gap-2">
                       {SEO_CITIES.filter((c) => c.state === state).map((c) => (
                         <button
+                          type="button"
                           key={c.slug}
                           onClick={() => {
                             userPickedCity.current = true;
                             setSelectedCity(c.slug);
                             setSelectedSituation(null);
                           }}
-                          className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                          className={`touch-manipulation min-h-[44px] rounded-xl px-3.5 py-2.5 text-sm font-medium transition sm:min-h-0 sm:rounded-lg sm:px-4 sm:py-2 ${
                             selectedCity === c.slug
                               ? 'bg-[#8b7355] text-white'
                               : 'bg-[#f0ebe4] text-[#1e2d3d] hover:bg-[#8b7355]/20'
@@ -203,9 +214,10 @@ export default function AreasPage() {
                   <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     {situationsForCity(selectedCity).map((s) => (
                       <button
+                        type="button"
                         key={s.slug}
                         onClick={() => setSelectedSituation(s.slug)}
-                        className={`rounded-xl border-2 p-5 text-left transition ${
+                        className={`touch-manipulation min-h-[52px] rounded-xl border-2 p-4 text-left transition sm:min-h-0 sm:p-5 ${
                           selectedSituation === s.slug
                             ? 'border-[#8b7355] bg-[#faf9f7]'
                             : 'border-black/10 bg-white hover:border-[#8b7355]/40'
@@ -225,19 +237,22 @@ export default function AreasPage() {
           )}
 
           {canViewPage && situation && city && (
-            <div className="mt-12 rounded-2xl border-2 border-[#8b7355] bg-[#faf9f7] p-8">
-              <h2 className="font-display text-2xl font-semibold text-[#1e2d3d]">Your specialized page</h2>
+            <div className="mt-10 rounded-2xl border-2 border-[#8b7355] bg-[#faf9f7] p-5 sm:mt-12 sm:p-8">
+              <h2 className="font-display text-xl font-semibold text-[#1e2d3d] sm:text-2xl">Your specialized page</h2>
               <p className="mt-2 text-warmgray">
                 {situation.title} in {city.name}, {city.state}
               </p>
-              <div className="mt-6 flex flex-wrap gap-4">
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
                 <Link
                   href={`/sell/${selectedSituation}/${selectedCity}`}
-                  className="btn-premium inline-block"
+                  className="btn-premium touch-manipulation flex min-h-[48px] items-center justify-center text-center sm:inline-flex"
                 >
                   View my page →
                 </Link>
-                <a href={business.phoneTel} className="inline-flex items-center rounded-lg border-2 border-[#8b7355] px-6 py-3 text-sm font-semibold text-[#8b7355] hover:bg-[#8b7355]/5">
+                <a
+                  href={business.phoneTel}
+                  className="touch-manipulation flex min-h-[48px] items-center justify-center rounded-xl border-2 border-[#8b7355] px-6 py-3 text-sm font-semibold text-[#8b7355] hover:bg-[#8b7355]/5 sm:inline-flex"
+                >
                   Call {business.phone}
                 </a>
               </div>
@@ -246,8 +261,8 @@ export default function AreasPage() {
         </div>
       </section>
 
-      <section className="border-t border-black/10 bg-[#f8f7f5] py-12">
-        <div className="mx-auto max-w-5xl px-5">
+      <section className="border-t border-black/10 bg-[#f8f7f5] py-8 sm:py-12">
+        <div className="mx-auto max-w-5xl px-4 sm:px-5">
           <p className="text-sm text-warmgray">
             Don&apos;t see your city? <Link href="/contact" className="font-medium text-[#8b7355] hover:underline">Contact us</Link>—
             we may still buy in your area. FL, TX, GA, OH, AL, VA, NY, NJ, AZ, LA, KS, NV & CA covered.

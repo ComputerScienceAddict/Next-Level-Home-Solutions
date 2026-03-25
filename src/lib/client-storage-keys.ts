@@ -3,7 +3,7 @@
  *
  * | Key | Purpose |
  * |-----|---------|
- * | `nlhs_detect_area_v1` | Caches the last `/api/detect-area` JSON for 24h so we don’t hammer IP/geo APIs on every navigation. |
+ * | `nlhs_detect_area_v2` | Caches the last `/api/detect-area` JSON for 24h (v2: invalidated hub-only guesses). |
  * | `nlhs_preferred_situation` | Situation picked on `/welcome`. |
  * | `nlhs_preferred_city` | City slug picked on `/welcome` (e.g. `fresno-ca`). |
  *
@@ -15,7 +15,7 @@
  * Not required for the current UX; localStorage is enough for one browser.
  */
 export const NLHS_STORAGE = {
-  DETECT_AREA_CACHE: 'nlhs_detect_area_v1',
+  DETECT_AREA_CACHE: 'nlhs_detect_area_v2',
   PREFERRED_SITUATION: 'nlhs_preferred_situation',
   PREFERRED_CITY: 'nlhs_preferred_city',
 } as const;
