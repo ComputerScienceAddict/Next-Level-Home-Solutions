@@ -2,7 +2,16 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
 
-const NOTIFY_EMAIL = 'computergamer844@gmail.com';
+/** Lead notification inboxes (both receive every form submission). */
+const NOTIFY_EMAILS = ['computergamer844@gmail.com', 'eian.hernandez1414@gmail.com'];
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
 
 export async function POST(req: Request) {
   try {
@@ -28,8 +37,18 @@ export async function POST(req: Request) {
     });
 
     const isOffer = record.form_type === 'offer';
-    const addressLine = [record.address, record.city, record.state, record.zip].filter(Boolean).join(', ') || 'Not provided';
+    const addressLine =
+      [record.address, record.city, record.state, record.zip].filter(Boolean).join(', ') || 'Not provided';
     const hasMessage = !!(record.message && String(record.message).trim());
+
+    const name = escapeHtml(String(record.name));
+    const emailRaw = String(record.email);
+    const email = escapeHtml(emailRaw);
+    const phone = escapeHtml(String(record.phone || 'Not provided'));
+    const addrSafe = escapeHtml(addressLine);
+    const subjectLine = record.subject ? escapeHtml(String(record.subject)) : '';
+    const messageBody = hasMessage ? escapeHtml(String(record.message)).replace(/\n/g, '<br/>') : '';
+    const sourceSafe = escapeHtml(String(record.source || 'website'));
 
     const emailHtml = `
 <!DOCTYPE html>
@@ -38,54 +57,57 @@ export async function POST(req: Request) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #f5f5f5;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 560px; margin: 24px auto; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
-    <!-- Header -->
+<body style="margin: 0; padding: 24px 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #eef1f4;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 560px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 32px rgba(30,45,61,0.12); border: 1px solid #e2e8f0;">
     <tr>
-      <td style="background: linear-gradient(135deg, #1e2d3d 0%, #2a3d52 100%); padding: 28px 32px; text-align: center;">
-        <h1 style="margin: 0; color: #fff; font-size: 22px; font-weight: 600; letter-spacing: -0.02em;">
-          ${isOffer ? '💰 New Offer' : '📩 New Message'}
+      <td style="background: #1e2d3d; padding: 32px 28px;">
+        <p style="margin: 0 0 6px; color: #c9a86c; font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;">Next Level Home Solutions</p>
+        <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.25;">
+          ${isOffer ? 'New cash-offer request' : 'New website inquiry'}
         </h1>
-        <p style="margin: 8px 0 0; color: rgba(255,255,255,0.8); font-size: 14px;">Next Level Home Solutions</p>
+        <p style="margin: 10px 0 0; color: rgba(255,255,255,0.75); font-size: 14px; line-height: 1.5;">Use <strong style="color: #fff;">Reply</strong> in your email app to respond directly to this person.</p>
       </td>
     </tr>
-    <!-- Body -->
     <tr>
-      <td style="padding: 32px;">
-        <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+      <td style="padding: 28px 28px 32px;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse: collapse;">
           <tr>
-            <td style="padding: 12px 0; border-bottom: 1px solid #eee;">
-              <span style="color: #8b7355; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">Contact</span>
-              <p style="margin: 4px 0 0; font-size: 16px; color: #1e2d3d; font-weight: 500;">${record.name}</p>
-              <p style="margin: 2px 0 0; font-size: 14px; color: #666;"><a href="mailto:${record.email}" style="color: #8b7355; text-decoration: none;">${record.email}</a></p>
+            <td style="padding: 0 0 20px; border-bottom: 1px solid #edf2f7;">
+              <p style="margin: 0 0 6px; color: #8b7355; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;">Name</p>
+              <p style="margin: 0; font-size: 17px; color: #1e2d3d; font-weight: 600;">${name}</p>
             </td>
           </tr>
           <tr>
-            <td style="padding: 12px 0; border-bottom: 1px solid #eee;">
-              <span style="color: #8b7355; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">Phone</span>
-              <p style="margin: 4px 0 0; font-size: 15px; color: #1e2d3d;">${record.phone || 'Not provided'}</p>
+            <td style="padding: 20px 0; border-bottom: 1px solid #edf2f7;">
+              <p style="margin: 0 0 6px; color: #8b7355; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;">Email</p>
+              <p style="margin: 0; font-size: 15px;"><a href="mailto:${emailRaw.replace(/[<>"']/g, '')}" style="color: #2c5282; text-decoration: none; font-weight: 500;">${email}</a></p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 20px 0; border-bottom: 1px solid #edf2f7;">
+              <p style="margin: 0 0 6px; color: #8b7355; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;">Phone</p>
+              <p style="margin: 0; font-size: 15px; color: #1e2d3d;">${phone}</p>
             </td>
           </tr>
           ${isOffer ? `
           <tr>
-            <td style="padding: 12px 0; border-bottom: 1px solid #eee;">
-              <span style="color: #8b7355; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">Property Address</span>
-              <p style="margin: 4px 0 0; font-size: 15px; color: #1e2d3d;">${addressLine}</p>
+            <td style="padding: 20px 0; border-bottom: 1px solid #edf2f7;">
+              <p style="margin: 0 0 6px; color: #8b7355; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;">Property</p>
+              <p style="margin: 0; font-size: 15px; color: #1e2d3d; line-height: 1.5;">${addrSafe}</p>
             </td>
           </tr>
           ` : ''}
           ${hasMessage ? `
           <tr>
-            <td style="padding: 12px 0;">
-              <span style="color: #8b7355; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">${record.subject ? 'Subject' : 'Message'}</span>
-              ${record.subject ? `<p style="margin: 4px 0 8px; font-size: 14px; color: #333;">${record.subject}</p>` : ''}
-              <p style="margin: 0; padding: 16px; background: #f8f7f5; border-radius: 8px; border-left: 4px solid #8b7355; font-size: 14px; color: #444; line-height: 1.6;">${record.message}</p>
+            <td style="padding: 20px 0 0;">
+              <p style="margin: 0 0 6px; color: #8b7355; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;">${record.subject ? 'Subject & message' : 'Message'}</p>
+              ${record.subject ? `<p style="margin: 0 0 12px; font-size: 15px; color: #1e2d3d; font-weight: 600;">${subjectLine}</p>` : ''}
+              <div style="margin: 0; padding: 18px 20px; background: #f7fafc; border-radius: 10px; border: 1px solid #e2e8f0; font-size: 15px; color: #2d3748; line-height: 1.65;">${messageBody}</div>
             </td>
           </tr>
           ` : ''}
         </table>
-        <p style="margin: 24px 0 0; font-size: 11px; color: #aaa;">From ${record.source || 'website'}</p>
-        <a href="mailto:${record.email}?subject=Re: Your inquiry with Next Level Home Solutions" style="display: inline-block; margin-top: 20px; padding: 12px 24px; background: #8b7355; color: #fff !important; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 8px;">Reply to lead</a>
+        <p style="margin: 28px 0 0; padding-top: 20px; border-top: 1px solid #edf2f7; font-size: 12px; color: #a0aec0; text-align: center;">Submitted via ${sourceSafe} · ${new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</p>
       </td>
     </tr>
   </table>
@@ -94,9 +116,10 @@ export async function POST(req: Request) {
     `.trim();
 
     await transporter.sendMail({
-      from: gmailUser,
-      to: NOTIFY_EMAIL,
-      subject: `[Lead Notification] ${(record.form_type || 'LEAD').toUpperCase()}: ${record.name}`,
+      from: `"Next Level Home Solutions" <${gmailUser}>`,
+      to: NOTIFY_EMAILS,
+      replyTo: record.email,
+      subject: `${isOffer ? '🏠 Offer' : '✉️ Contact'}: ${record.name} — Next Level Home Solutions`,
       html: emailHtml,
     });
 
@@ -115,7 +138,7 @@ export async function POST(req: Request) {
     </tr>
     <tr>
       <td style="padding: 28px;">
-        <p style="margin: 0 0 16px; font-size: 15px; color: #333; line-height: 1.6;">Hi ${record.name},</p>
+        <p style="margin: 0 0 16px; font-size: 15px; color: #333; line-height: 1.6;">Hi ${escapeHtml(String(record.name))},</p>
         <p style="margin: 0 0 20px; font-size: 15px; color: #333; line-height: 1.6;">We received your message and will get back to you soon—usually the same day.</p>
         <p style="margin: 0; font-size: 14px; color: #666;">Need to speak with us right away?</p>
         <p style="margin: 8px 0 0;"><a href="tel:559-991-2190" style="color: #8b7355; font-weight: 600; text-decoration: none;">559-991-2190</a> — Call or text</p>

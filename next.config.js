@@ -11,11 +11,12 @@ const nextConfig = {
     ],
   },
   /**
-   * Windows dev: disk webpack cache can corrupt (missing vendor-chunks/@swc.js).
-   * Disabling persistent cache in dev avoids ENOENT / 500s; prod build unchanged.
+   * Windows dev only, if you hit corrupt webpack cache (vendor-chunks ENOENT):
+   *   set NEXT_DISABLE_WEBPACK_CACHE=1
+   * Leaving cache ON by default avoids flaky missing chunk 404s (main-app.js, etc.).
    */
   webpack: (config, { dev }) => {
-    if (dev) {
+    if (dev && process.env.NEXT_DISABLE_WEBPACK_CACHE === '1') {
       config.cache = false;
     }
     return config;

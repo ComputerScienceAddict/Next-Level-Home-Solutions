@@ -1,12 +1,56 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import LeadsMap from '@/components/LeadsMap';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import LeadsMap, { STATE_NAMES } from '@/components/LeadsMap';
+import { normalizeStateCode } from '@/lib/geo-match';
 
 const ADMIN_USER = 'admin';
 const ADMIN_PASS = 'admin123';
 const AUTH_KEY = 'admin_leads_auth';
+
+/** Initial rows per table; “Load more” adds this many (keeps DOM light for huge lists). */
+const LEAD_TABLE_PAGE_SIZE = 20;
+
+function useLeadTablePagination<T>(rows: readonly T[], pageSize: number, resetKey: string) {
+  const [visibleCount, setVisibleCount] = useState(pageSize);
+  useEffect(() => {
+    setVisibleCount(pageSize);
+  }, [resetKey, pageSize, rows.length]);
+  const visible = useMemo(() => rows.slice(0, visibleCount), [rows, visibleCount]);
+  const hasMore = visibleCount < rows.length;
+  const loadMore = useCallback(() => {
+    setVisibleCount((c) => Math.min(c + pageSize, rows.length));
+  }, [rows.length, pageSize]);
+  return { visible, hasMore, loadMore, total: rows.length };
+}
+
+function LoadMoreRow({
+  hasMore,
+  onLoadMore,
+  showing,
+  total,
+}: {
+  hasMore: boolean;
+  onLoadMore: () => void;
+  showing: number;
+  total: number;
+}) {
+  if (!hasMore) return null;
+  return (
+    <div className="mt-4 flex flex-col items-center gap-2 border-t border-black/5 pt-4">
+      <p className="text-xs text-warmgray">
+        Showing {showing} of {total}
+      </p>
+      <button
+        type="button"
+        onClick={onLoadMore}
+        className="rounded-lg bg-[#1e2d3d] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#2a3d52]"
+      >
+        Load more ({total - showing} remaining)
+      </button>
+    </div>
+  );
+}
 
 interface PropertyDetails {
   propertyType?: string;
@@ -44,12 +88,15 @@ export default function AdminLeadsPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [leads, setLeads] = useState<Notice[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [apiError, setApiError] = useState('');
   const [lastFetchMessage, setLastFetchMessage] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [selectedState, setSelectedState] = useState<string | null>(null);
+  const fetchGen = useRef(0);
+  /** Avoid stacking multiple initial GETs when user clicks several states before the first response */
+  const initialLeadsFetchInFlight = useRef(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -57,50 +104,58 @@ export default function AdminLeadsPage() {
     }
   }, []);
 
-  useEffect(() => {
-    if (auth) {
-      fetchLeads();
-    }
-  }, [auth]);
-
-  const fetchLeads = async () => {
+  const fetchLeads = useCallback(async (sync = false) => {
+    const id = ++fetchGen.current;
     setLoading(true);
     setApiError('');
     setLastFetchMessage(null);
     try {
-      const response = await fetch('/api/leads?t=' + Date.now());
+      const url = sync
+        ? '/api/leads?sync=1&t=' + Date.now()
+        : '/api/leads?t=' + Date.now();
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Failed to fetch leads: ${response.status}`);
       }
       const result = await response.json();
       const noticesData = result.data?.data || [];
+      if (id !== fetchGen.current) return;
       setLeads(noticesData);
       setLastUpdated(new Date());
+      console.log(`Loaded ${noticesData.length} leads from API (sync=${sync})`);
+      return noticesData.length;
     } catch (err) {
+      if (id !== fetchGen.current) return;
       console.error('Error fetching leads:', err);
       setApiError('Failed to load leads. Please try again.');
     } finally {
-      setLoading(false);
+      if (id === fetchGen.current) {
+        setLoading(false);
+      }
     }
-  };
+  }, []);
+
+  // Fetch once when user picks a state; API returns all states — switching state only filters client-side
+  useEffect(() => {
+    if (!auth || !selectedState || leads.length > 0) return;
+    if (initialLeadsFetchInFlight.current) return;
+    initialLeadsFetchInFlight.current = true;
+    void fetchLeads().finally(() => {
+      initialLeadsFetchInFlight.current = false;
+    });
+  }, [auth, selectedState, leads.length, fetchLeads]);
 
   const handleFetchNewLeads = async () => {
     setSyncing(true);
     setApiError('');
     setLastFetchMessage(null);
     try {
-      const response = await fetch('/api/leads?t=' + Date.now());
-      if (!response.ok) {
-        throw new Error(`Failed to fetch leads: ${response.status}`);
+      const count = await fetchLeads(true);
+      if (count != null) {
+        setLastFetchMessage(`Synced from NicheData: ${count} total leads now in database.`);
+        setTimeout(() => setLastFetchMessage(null), 8000);
       }
-      const result = await response.json();
-      const noticesData = result.data?.data || [];
-      setLeads(noticesData);
-      setLastUpdated(new Date());
-      setLastFetchMessage(`Updated: ${noticesData.length} total leads synced from NicheData.`);
-      setTimeout(() => setLastFetchMessage(null), 5000);
-    } catch (err) {
-      console.error('Error fetching leads:', err);
+    } catch {
       setApiError('Failed to fetch from NicheData. Please try again.');
     } finally {
       setSyncing(false);
@@ -124,6 +179,31 @@ export default function AdminLeadsPage() {
     sessionStorage.removeItem(AUTH_KEY);
     setAuth(false);
   };
+
+  const isAuthed = auth === true;
+
+  const allLeads = isAuthed ? leads : [];
+
+  const currentLeads =
+    isAuthed && selectedState
+      ? allLeads.filter((l) => normalizeStateCode(l.attributes?.state) === selectedState)
+      : allLeads;
+
+  const foreclosures = currentLeads.filter((l) => l.attributes?.recordType?.toLowerCase() === 'foreclosures');
+  const probates = currentLeads.filter((l) => l.attributes?.recordType?.toLowerCase() === 'probates');
+  const liens = currentLeads.filter((l) => l.attributes?.recordType?.toLowerCase() === 'liens');
+  const estateSales = currentLeads.filter((l) => l.attributes?.recordType?.toLowerCase() === 'estate sales');
+  const otherLeads = currentLeads.filter(
+    (l) =>
+      !['foreclosures', 'probates', 'liens', 'estate sales'].includes(l.attributes?.recordType?.toLowerCase() || '')
+  );
+
+  const tableResetKey = `${selectedState ?? ''}-${lastUpdated?.getTime() ?? 0}-${leads.length}`;
+  const fcPag = useLeadTablePagination(foreclosures, LEAD_TABLE_PAGE_SIZE, tableResetKey);
+  const probPag = useLeadTablePagination(probates, LEAD_TABLE_PAGE_SIZE, tableResetKey);
+  const liensPag = useLeadTablePagination(liens, LEAD_TABLE_PAGE_SIZE, tableResetKey);
+  const estatePag = useLeadTablePagination(estateSales, LEAD_TABLE_PAGE_SIZE, tableResetKey);
+  const otherPag = useLeadTablePagination(otherLeads, LEAD_TABLE_PAGE_SIZE, tableResetKey);
 
   if (auth === null) {
     return (
@@ -176,51 +256,33 @@ export default function AdminLeadsPage() {
     );
   }
 
-  if (loading) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#8b7355] border-r-transparent"></div>
-          <p className="mt-4 text-warmgray">Loading leads…</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Only show listings with status "active" (exclude Pending, postponed, sold, cancelled, closed, etc.)
-  const activeLeads = leads.filter((l) => (l.attributes?.saleStatus || '').toLowerCase() === 'active');
-  
-  // Filter by selected state if one is selected
-  const currentLeads = selectedState
-    ? activeLeads.filter((l) => (l.attributes?.state || '').toUpperCase() === selectedState)
-    : activeLeads;
-
-  const foreclosures = currentLeads.filter((l) => l.attributes?.recordType?.toLowerCase() === 'foreclosures');
-  const probates = currentLeads.filter((l) => l.attributes?.recordType?.toLowerCase() === 'probates');
-  const liens = currentLeads.filter((l) => l.attributes?.recordType?.toLowerCase() === 'liens');
-  const estateSales = currentLeads.filter((l) => l.attributes?.recordType?.toLowerCase() === 'estate sales');
-  const otherLeads = currentLeads.filter(
-    (l) =>
-      !['foreclosures', 'probates', 'liens', 'estate sales'].includes(l.attributes?.recordType?.toLowerCase() || '')
-  );
-
   return (
     <section className="border-t border-black/10 py-16">
-      <div className="mx-auto max-w-6xl px-5">
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-5 lg:pl-6 lg:pr-8">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="font-display text-3xl font-semibold text-[#1e2d3d]">Leads Dashboard</h1>
-            <p className="mt-1 text-sm text-warmgray">
-              {currentLeads.length} active listings{selectedState ? ` in ${selectedState}` : ''} — {foreclosures.length} foreclosures, {probates.length} probates, {liens.length} liens, {estateSales.length} estate sales
-            </p>
-            {selectedState && (
-              <button
-                type="button"
-                onClick={() => setSelectedState(null)}
-                className="mt-1 text-xs text-[#8b7355] hover:underline"
-              >
-                ← Show all states ({activeLeads.length} total)
-              </button>
+            {!selectedState ? (
+              <p className="mt-1 text-sm text-warmgray">
+                Click a state on the map to load leads
+              </p>
+            ) : loading ? (
+              <p className="mt-1 text-sm text-warmgray">Loading leads…</p>
+            ) : (
+              <>
+                <p className="mt-1 text-sm text-warmgray">
+                  {currentLeads.length} listings in {STATE_NAMES[selectedState] ?? selectedState} —{' '}
+                  {foreclosures.length} foreclosures, {probates.length} probates, {liens.length} liens,{' '}
+                  {estateSales.length} estate sales{otherLeads.length > 0 ? `, ${otherLeads.length} other` : ''}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setSelectedState(null)}
+                  className="mt-1 text-xs text-[#8b7355] hover:underline"
+                >
+                  ← Show all states ({allLeads.length} total)
+                </button>
+              </>
             )}
             {lastUpdated && (
               <p className="mt-1 text-xs text-warmgray/60">
@@ -229,15 +291,6 @@ export default function AdminLeadsPage() {
             )}
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <Link
-              href="/admin/seo"
-              className="inline-flex items-center gap-2 rounded-lg border-2 border-[#8b7355] px-4 py-2 text-sm font-semibold text-[#8b7355] transition hover:bg-[#8b7355]/5"
-            >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              SEO Manager
-            </Link>
             <button
               type="button"
               onClick={handleFetchNewLeads}
@@ -278,7 +331,8 @@ export default function AdminLeadsPage() {
           <div className="mt-6 rounded-lg bg-red-50 border border-red-200 p-4">
             <p className="text-sm text-red-800">{apiError}</p>
             <button
-              onClick={fetchLeads}
+              type="button"
+              onClick={() => void fetchLeads()}
               className="mt-2 text-sm font-medium text-red-600 hover:underline"
             >
               Retry
@@ -286,9 +340,31 @@ export default function AdminLeadsPage() {
           </div>
         )}
 
-        {/* Map + Tables layout */}
-        <div className="mt-8 grid gap-8 xl:grid-cols-[1fr_400px]">
-          <div className="order-2 xl:order-1">
+        {/* Map left, leads beside it (capped width) — not stretched to far right */}
+        <div className="mt-8 flex flex-col gap-8 xl:flex-row xl:items-start xl:justify-start xl:gap-10">
+          <div className="order-1 w-full shrink-0 xl:sticky xl:top-24 xl:w-[min(100%,500px)] xl:max-w-[500px]">
+            <LeadsMap 
+              leads={allLeads} 
+              selectedState={selectedState}
+              onStateSelect={setSelectedState}
+            />
+          </div>
+          <div className="order-2 min-w-0 w-full max-w-full xl:max-w-[960px] xl:flex-none">
+            {!selectedState && (
+              <div className="rounded-xl border border-black/10 bg-slate-50 p-12 text-center">
+                <p className="text-warmgray">Select a state on the map to load and view leads.</p>
+              </div>
+            )}
+            {selectedState && loading && (
+              <div className="flex items-center justify-center rounded-xl border border-black/10 bg-white py-16">
+                <div className="text-center">
+                  <div className="mx-auto inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#8b7355] border-r-transparent" />
+                  <p className="mt-4 text-warmgray">Loading leads…</p>
+                </div>
+              </div>
+            )}
+            {selectedState && !loading && (
+            <div key={selectedState} className="min-w-0">
             {/* Foreclosures */}
         {foreclosures.length > 0 && (
           <div className="mt-10">
@@ -307,7 +383,7 @@ export default function AdminLeadsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {foreclosures.map((lead) => {
+                  {fcPag.visible.map((lead) => {
                     const attrs = lead.attributes;
                     return (
                       <tr key={lead.id} className="border-b border-black/5 hover:bg-black/[0.02]">
@@ -327,6 +403,12 @@ export default function AdminLeadsPage() {
                   })}
                 </tbody>
               </table>
+              <LoadMoreRow
+                hasMore={fcPag.hasMore}
+                onLoadMore={fcPag.loadMore}
+                showing={fcPag.visible.length}
+                total={fcPag.total}
+              />
             </div>
           </div>
         )}
@@ -348,7 +430,7 @@ export default function AdminLeadsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {probates.map((lead) => {
+                  {probPag.visible.map((lead) => {
                     const attrs = lead.attributes;
                     return (
                       <tr key={lead.id} className="border-b border-black/5 hover:bg-black/[0.02]">
@@ -365,6 +447,12 @@ export default function AdminLeadsPage() {
                   })}
                 </tbody>
               </table>
+              <LoadMoreRow
+                hasMore={probPag.hasMore}
+                onLoadMore={probPag.loadMore}
+                showing={probPag.visible.length}
+                total={probPag.total}
+              />
             </div>
           </div>
         )}
@@ -385,7 +473,7 @@ export default function AdminLeadsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {liens.map((lead) => {
+                  {liensPag.visible.map((lead) => {
                     const attrs = lead.attributes;
                     return (
                       <tr key={lead.id} className="border-b border-black/5 hover:bg-black/[0.02]">
@@ -399,6 +487,12 @@ export default function AdminLeadsPage() {
                   })}
                 </tbody>
               </table>
+              <LoadMoreRow
+                hasMore={liensPag.hasMore}
+                onLoadMore={liensPag.loadMore}
+                showing={liensPag.visible.length}
+                total={liensPag.total}
+              />
             </div>
           </div>
         )}
@@ -419,7 +513,7 @@ export default function AdminLeadsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {estateSales.map((lead) => {
+                  {estatePag.visible.map((lead) => {
                     const attrs = lead.attributes;
                     return (
                       <tr key={lead.id} className="border-b border-black/5 hover:bg-black/[0.02]">
@@ -433,6 +527,12 @@ export default function AdminLeadsPage() {
                   })}
                 </tbody>
               </table>
+              <LoadMoreRow
+                hasMore={estatePag.hasMore}
+                onLoadMore={estatePag.loadMore}
+                showing={estatePag.visible.length}
+                total={estatePag.total}
+              />
             </div>
           </div>
         )}
@@ -453,7 +553,7 @@ export default function AdminLeadsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {otherLeads.map((lead) => {
+                  {otherPag.visible.map((lead) => {
                     const attrs = lead.attributes;
                     return (
                       <tr key={lead.id} className="border-b border-black/5 hover:bg-black/[0.02]">
@@ -471,24 +571,40 @@ export default function AdminLeadsPage() {
                   })}
                 </tbody>
               </table>
+              <LoadMoreRow
+                hasMore={otherPag.hasMore}
+                onLoadMore={otherPag.loadMore}
+                showing={otherPag.visible.length}
+                total={otherPag.total}
+              />
             </div>
           </div>
         )}
 
             {currentLeads.length === 0 && !apiError && (
               <div className="mt-10 rounded-xl border border-black/10 bg-white p-12 text-center">
-                <p className="text-warmgray">No active listings at this time.</p>
+                <p className="text-warmgray">
+                  {allLeads.length > 0 && selectedState ? (
+                    <>
+                      No listings in {STATE_NAMES[selectedState] ?? selectedState} right now.
+                      <span className="mt-2 block text-sm">
+                        You have {allLeads.length} lead{allLeads.length === 1 ? '' : 's'} in other
+                        states — pick another state on the map.
+                      </span>
+                    </>
+                  ) : leads.length > 0 && selectedState ? (
+                    <>
+                      No listings match the active filter for {STATE_NAMES[selectedState] ?? selectedState}. Try
+                      another state or use <strong>Fetch new leads</strong>.
+                    </>
+                  ) : (
+                    'No active listings at this time.'
+                  )}
+                </p>
               </div>
             )}
-          </div>
-
-          {/* Map sidebar */}
-          <div className="order-1 xl:order-2 xl:sticky xl:top-24 xl:self-start">
-            <LeadsMap 
-              leads={activeLeads} 
-              selectedState={selectedState}
-              onStateSelect={setSelectedState}
-            />
+            </div>
+            )}
           </div>
         </div>
       </div>

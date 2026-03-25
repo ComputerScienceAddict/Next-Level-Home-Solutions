@@ -54,6 +54,8 @@ export const viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
+  viewportFit: 'cover' as const,
+  themeColor: '#1e2d3d',
 };
 
 export default function RootLayout({
@@ -105,7 +107,7 @@ export default function RootLayout({
         }
       >
         <Header />
-        <main>{children}</main>
+        <main className="min-h-0 overflow-x-clip">{children}</main>
         <Footer />
       </body>
     </html>

@@ -11,17 +11,20 @@ export default function SellLocalMatchBanner({ pageCitySlug }: { pageCitySlug: s
 
   if (data.city.slug === pageCitySlug) {
     return (
-      <div className="mb-6 rounded-xl border border-[#c9a86c]/40 bg-[#c9a86c]/10 px-4 py-3 text-sm text-white/95">
-        <span className="font-semibold text-[#c9a86c]">Matched to your area.</span>{' '}
+      <div className="mb-5 rounded-xl border border-[#c9a86c]/40 bg-black/45 px-3.5 py-3 text-[13px] leading-relaxed text-zinc-100 shadow-lg shadow-black/30 backdrop-blur-md sm:mb-6 sm:px-4 sm:py-3.5 sm:text-sm">
+        <span className="font-semibold text-[#f5e6c8]">Matched to your area.</span>{' '}
         This page is focused on {data.city.name}, {data.city.state} — including what sellers often ask about here.
       </div>
     );
   }
 
   return (
-    <div className="mb-6 rounded-xl border border-white/20 bg-white/5 px-4 py-3 text-sm text-white/90">
-      <span className="text-white/70">Looks like you&apos;re near {data.city.name}, {data.city.state}.</span>{' '}
-      <Link href={`/sell/${data.popularSituations[0]?.slug ?? 'foreclosure'}/${data.city.slug}`} className="font-semibold text-[#c9a86c] underline-offset-2 hover:underline">
+    <div className="mb-5 rounded-xl border border-white/25 bg-black/40 px-3.5 py-3 text-[13px] leading-relaxed text-zinc-100 shadow-md shadow-black/25 backdrop-blur-md sm:mb-6 sm:px-4 sm:py-3.5 sm:text-sm">
+      <span className="text-zinc-200">Looks like you&apos;re near {data.city.name}, {data.city.state}.</span>{' '}
+      <Link
+        href={`/sell/${data.popularSituations[0]?.slug ?? 'foreclosure'}/${data.city.slug}`}
+        className="font-semibold text-[#f5e6c8] underline decoration-[#f5e6c8]/50 underline-offset-2 transition hover:decoration-[#f5e6c8]"
+      >
         View what&apos;s popular there →
       </Link>
     </div>

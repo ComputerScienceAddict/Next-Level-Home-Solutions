@@ -5,6 +5,7 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    -webkit-tap-highlight-color: rgba(201, 168, 108, 0.15);
   }
   /**
    * Houses photo behind the whole site (--site-houses-bg set on <body> in layout).
@@ -31,6 +32,19 @@
     body.site-body-bg {
       background-attachment: scroll, scroll;
     }
+  }
+}
+
+@layer utilities {
+  /* iOS notch / home indicator — pair with viewport-fit=cover */
+  .safe-pt {
+    padding-top: max(0.5rem, env(safe-area-inset-top, 0px));
+  }
+  .safe-pb {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+  }
+  .touch-manipulation {
+    touch-action: manipulation;
   }
 }
 

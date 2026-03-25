@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { business } from '@/config/business';
+import { SITE_HOUSES_BACKGROUND_URL } from '@/config/site-assets';
 import { SEO_CITIES, SELLER_SITUATIONS } from '@/data/seo-targets';
 
 export const metadata = {
@@ -14,38 +15,58 @@ export const metadata = {
 export default function SellHubPage() {
   return (
     <>
-      <section className="relative min-h-[36vh] bg-[#2a2520] py-16 md:py-20">
+      <section className="relative min-h-[min(42vh,440px)] overflow-hidden px-1 py-12 sm:min-h-[min(48vh,520px)] sm:px-0 sm:py-16 md:min-h-[min(52vh,580px)] md:py-24">
         <div
-          className="absolute inset-0 opacity-30"
+          className="pointer-events-none absolute inset-0 scale-105 bg-cover bg-[center_28%]"
+          style={{ backgroundImage: `url("${SITE_HOUSES_BACKGROUND_URL}")` }}
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#1a1612]/93 via-[#2a2520]/91 to-[#1e2d3d]/94"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.22]"
           style={{
             backgroundImage:
-              'radial-gradient(circle at 2px 2px, rgba(139,115,85,0.15) 1px, transparent 0)',
-            backgroundSize: '24px 24px',
+              'radial-gradient(circle at 2px 2px, rgba(201,168,108,0.14) 1px, transparent 0)',
+            backgroundSize: '26px 26px',
           }}
+          aria-hidden
         />
-        <div className="relative mx-auto max-w-5xl px-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#8b7355]">Motivated sellers</p>
-          <h1 className="mt-2 font-display text-4xl text-white md:text-5xl">Sell your house — by situation & city</h1>
-          <p className="mt-6 max-w-2xl text-lg text-white/85">
+        <div className="relative z-10 mx-auto max-w-5xl px-4 text-white sm:px-5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#e8d4a8] sm:text-xs sm:tracking-[0.25em]">
+            Motivated sellers
+          </p>
+          <h1 className="mt-2 max-w-4xl font-display text-[1.65rem] leading-[1.15] text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.75)] sm:text-4xl sm:leading-tight md:text-5xl">
+            Sell your house — by situation & city
+          </h1>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-zinc-100 sm:mt-6 sm:text-lg">
             Browse all situations and cities, or{' '}
-            <Link href="/areas" className="underline hover:no-underline">
+            <Link href="/areas" className="font-medium text-white underline decoration-white/40 underline-offset-2 transition hover:decoration-white">
               use the Areas picker
             </Link>{' '}
             to find your specialized page.
           </p>
-          <div className="mt-8 flex flex-wrap gap-4">
-            <a href={business.phoneTel} className="btn-premium inline-block">
+          <div className="mt-8 flex w-full max-w-md flex-col gap-3 sm:mt-10 sm:max-w-none sm:flex-row sm:flex-wrap sm:gap-4">
+            <a
+              href={business.phoneTel}
+              className="btn-premium touch-manipulation flex min-h-[48px] w-full items-center justify-center shadow-lg shadow-black/25 sm:inline-flex sm:w-auto"
+            >
               Call {business.phone}
             </a>
-            <Link href="/get-offer" className="inline-flex items-center rounded-lg border-2 border-white/30 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10">
+            <Link
+              href="/get-offer"
+              className="touch-manipulation flex min-h-[48px] w-full items-center justify-center rounded-xl border-2 border-white/40 bg-white/10 px-5 py-3.5 text-sm font-semibold text-white backdrop-blur-sm transition hover:border-white/55 hover:bg-white/15 active:scale-[0.99] sm:w-auto"
+            >
               Get a cash offer
             </Link>
           </div>
         </div>
       </section>
 
-      <section className="py-14">
-        <div className="mx-auto max-w-5xl px-5">
+      <section className="bg-gradient-to-b from-[#f6f4f0] to-white py-10 sm:py-14">
+        <div className="mx-auto max-w-5xl px-4 sm:px-5">
           <h2 className="font-display text-2xl font-semibold text-[#1e2d3d]">Seller situations we target</h2>
           <p className="mt-3 max-w-3xl text-warmgray">
             Each link opens a dedicated page with local ZIP context and FAQs for that situation.
@@ -55,7 +76,7 @@ export default function SellHubPage() {
               <li key={s.slug}>
                 <Link
                   href={`/sell/${s.slug}/fresno-ca`}
-                  className="block rounded-xl border border-black/10 bg-white p-5 shadow-sm transition hover:border-[#8b7355]/40 hover:shadow-md"
+                  className="touch-manipulation block min-h-[52px] rounded-xl border border-black/10 bg-white p-5 shadow-sm transition hover:border-[#8b7355]/40 hover:shadow-md active:scale-[0.99]"
                 >
                   <span className="font-display text-lg font-semibold text-[#1e2d3d]">{s.title}</span>
                   <p className="mt-2 text-sm text-warmgray line-clamp-2">{s.painSummary}</p>

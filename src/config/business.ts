@@ -7,6 +7,7 @@ export const business = {
   tagline: 'Cash offers · Sell as-is · Close fast',
   phone: '559-991-2190',
   phoneTel: 'tel:559-991-2190',
+  contactEmail: 'eian.hernandez1414@gmail.com',
   primaryMarket: 'Central California',
   states: ['CA'] as const,
   valueProps: [
