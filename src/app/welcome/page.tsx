@@ -36,6 +36,7 @@ function formatDetectedCityDisplay(raw: string): string {
 export default function WelcomePage() {
   const [step, setStep] = useState<Step>('location');
   const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [gpsSettled, setGpsSettled] = useState(false);
   const [gpsRequesting, setGpsRequesting] = useState(false);
 
   const { data: geo, loading: geoLoading } = useDetectArea({
@@ -55,6 +56,7 @@ export default function WelcomePage() {
       if (result.status === 'granted') {
         setGpsCoords({ lat: result.lat, lng: result.lng });
       }
+      setGpsSettled(true);
     });
   }, []);
 
@@ -130,6 +132,7 @@ export default function WelcomePage() {
       if (result.status === 'granted') {
         setGpsCoords({ lat: result.lat, lng: result.lng });
       }
+      setGpsSettled(true);
     });
   };
 
@@ -140,7 +143,7 @@ export default function WelcomePage() {
 
   const situationTitle = SELLER_SITUATIONS.find((s) => s.slug === selectedSituation)?.title ?? 'your situation';
 
-  const locationReady = !geoLoading && geo !== null;
+  const locationReady = !geoLoading && geo !== null && gpsSettled;
   const geoMatched = geo && 'matched' in geo && geo.matched;
   const geoStateLabel =
     geoMatched && 'city' in geo
@@ -194,8 +197,12 @@ export default function WelcomePage() {
               {!locationReady && (
                 <div className="flex flex-col items-center py-6 text-center">
                   <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#c9a86c] border-t-transparent" />
-                  <p className="mt-4 text-sm font-medium text-white/90">Looking up your area…</p>
-                  <p className="mt-1 text-xs text-white/55">This usually takes a second or two.</p>
+                  <p className="mt-4 text-sm font-medium text-white/90">
+                    {!gpsSettled ? 'Getting your location…' : 'Looking up your area…'}
+                  </p>
+                  <p className="mt-1 text-xs text-white/55">
+                    {!gpsSettled ? 'Allow location access in your browser for the best match.' : 'Almost there.'}
+                  </p>
                 </div>
               )}
 

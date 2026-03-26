@@ -42,7 +42,7 @@ async function lookupIp(ip: string): Promise<{ city?: string; region?: string } 
   }
 }
 
-async function reverseGeocode(lat: number, lng: number): Promise<{ city?: string; region?: string } | null> {
+async function reverseGeocode(lat: number, lng: number): Promise<{ city?: string; region?: string; county?: string } | null> {
   try {
     const res = await fetch(
       `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1`,
@@ -59,7 +59,8 @@ async function reverseGeocode(lat: number, lng: number): Promise<{ city?: string
     if (!addr) return null;
     const city = addr.city || addr.town || addr.village;
     const region = addr.state_code || addr.state;
-    return { city, region };
+    const county = addr.county;
+    return { city, region, county };
   } catch {
     return null;
   }
@@ -80,6 +81,7 @@ export async function GET(request: NextRequest) {
 
   let geoCity: string | null = overrideCity;
   let region: string | null = overrideRegion;
+  let geoCounty: string | null = null;
 
   let source: 'gps' | 'query' | 'vercel' | 'ip' | 'none' = 'none';
 
@@ -91,6 +93,7 @@ export async function GET(request: NextRequest) {
       if (gpsData?.city && gpsData.region) {
         geoCity = gpsData.city;
         region = gpsData.region;
+        geoCounty = gpsData.county ?? null;
         source = 'gps';
       }
     }
@@ -123,7 +126,7 @@ export async function GET(request: NextRequest) {
   }
 
   const stateCode = normalizeStateCode(region);
-  const resolved = resolveLocalArea(geoCity, stateCode);
+  const resolved = resolveLocalArea(geoCity, stateCode, geoCounty);
 
   if (!resolved) {
     return NextResponse.json({

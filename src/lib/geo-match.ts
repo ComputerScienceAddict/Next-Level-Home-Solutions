@@ -188,13 +188,41 @@ export type ResolvedLocalArea = {
   popular: PopularSituationBrief[];
 };
 
+function normalizeCountyName(county: string): string {
+  return county
+    .trim()
+    .toLowerCase()
+    .replace(/\+/g, ' ')
+    .replace(/\s+county$/i, '')
+    .replace(/\s+/g, ' ')
+    .replace(/[^a-z0-9\s]/g, '');
+}
+
+/**
+ * Find the best SEO city in a given county. Prefers the one with popularSituations defined,
+ * then the first alphabetically (deterministic).
+ */
+function findSeoCityByCounty(countyRaw: string, stateCode: string): SeoCity | null {
+  const nc = normalizeCountyName(countyRaw);
+  if (!nc) return null;
+  const matches = SEO_CITIES.filter(
+    (c) => c.state === stateCode && normalizeCountyName(c.county) === nc
+  );
+  if (matches.length === 0) return null;
+  const withPopular = matches.filter((c) => c.popularSituations?.length);
+  if (withPopular.length > 0) return withPopular[0];
+  return matches[0];
+}
+
 export function resolveLocalArea(
   geoCity: string | null | undefined,
-  stateCode: string | null | undefined
+  stateCode: string | null | undefined,
+  geoCounty?: string | null
 ): ResolvedLocalArea | null {
   const code = stateCode?.toUpperCase() ?? null;
   if (!code || !isServedState(code)) return null;
 
+  // 1) Exact or fuzzy city name match
   const resolvedCity = findSeoCityByGeoFuzzy(geoCity, code);
   if (resolvedCity) {
     return {
@@ -205,6 +233,20 @@ export function resolveLocalArea(
     };
   }
 
+  // 2) County match — much better than the state hub
+  if (geoCounty) {
+    const countyCity = findSeoCityByCounty(geoCounty, code);
+    if (countyCity) {
+      return {
+        city: countyCity,
+        approximate: false,
+        detectedCityName: geoCity ?? undefined,
+        popular: popularSituationsForCity(countyCity),
+      };
+    }
+  }
+
+  // 3) State hub as last resort
   const hub = hubCityForState(code);
   if (!hub) return null;
 
