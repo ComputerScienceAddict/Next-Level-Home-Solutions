@@ -62,8 +62,8 @@ export default function WelcomePage() {
     if (!geo || !('matched' in geo) || !geo.matched) return;
     const st = geo.city.state;
     if (servedStates.includes(st)) setLocationTab(st);
-    // Exact SEO city only — hub/approximate never pre-fills slug (user picks city). GPS can later refine to exact.
-    if (!geo.approximate) setSelectedCitySlug(geo.city.slug);
+    // Guide URL uses exact city or state hub — welcome skips city picker when we have any served match.
+    setSelectedCitySlug(geo.city.slug);
   }, [geo, servedStates]);
 
   const statesWithCities = useMemo(
@@ -108,8 +108,7 @@ export default function WelcomePage() {
 
   const handlePickSituation = (slug: string) => {
     setSelectedSituation(slug);
-    const cityFromGeo =
-      geo && 'matched' in geo && geo.matched && !geo.approximate ? geo.city.slug : null;
+    const cityFromGeo = geo && 'matched' in geo && geo.matched ? geo.city.slug : null;
     if (cityFromGeo) {
       setSelectedCitySlug(cityFromGeo);
       goToDedicatedPage(slug, cityFromGeo);
@@ -211,8 +210,8 @@ export default function WelcomePage() {
                   <p className="mt-2 text-sm text-white/65">
                     {geo.approximate
                       ? geo.detectedCityName
-                        ? 'After you choose what you need help with, you’ll pick your city from our list — we won’t drop you onto a default hub that might not be yours.'
-                        : 'We have your state but not your town yet — you’ll pick your city right after you choose what you need help with.'
+                        ? 'After you choose what you need help with, we’ll open your local guide — switch city anytime from the site if the area isn’t quite right.'
+                        : 'After you choose what you need help with, we’ll open a guide for your region — you can pick another city from the site anytime.'
                       : "After you tell us what you need help with, we'll open your personalized page for this area."}
                   </p>
                 </div>
@@ -292,8 +291,8 @@ export default function WelcomePage() {
                 </strong>
                 <span className="text-white/65">
                   {geo.detectedCityName
-                    ? ' — next you’ll pick your guide city from our list so the page matches you.'
-                    : ' — next you’ll choose your city so we don’t guess wrong.'}
+                    ? ' — then we’ll open your guide; change city from the site if you need to.'
+                    : ' — then we’ll open your guide; you can change city anytime from the site.'}
                 </span>
               </p>
             )}
