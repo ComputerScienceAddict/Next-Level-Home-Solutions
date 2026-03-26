@@ -88,6 +88,8 @@ function normalizeCityName(name: string): string {
   return name
     .trim()
     .toLowerCase()
+    .replace(/\+/g, ' ')
+    .replace(/_/g, ' ')
     .replace(/\s+/g, ' ')
     .replace(/[^a-z0-9\s]/g, '');
 }
@@ -99,6 +101,57 @@ export function findSeoCityByGeo(cityName: string | null | undefined, stateCode:
   const n = normalizeCityName(cityName);
   const hit = SEO_CITIES.find((c) => c.state === code && normalizeCityName(c.name) === n);
   return hit ?? null;
+}
+
+const ST_ABBREV = /\bst\.?\b/g;
+
+function normalizeForStVariant(name: string): string {
+  return normalizeCityName(name).replace(ST_ABBREV, 'saint').replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * When IP/GPS returns a label that doesn’t exactly match our city names (+ encoding, “County”, etc.),
+ * map it to an SEO city in the same state so users aren’t sent through the full picker.
+ */
+export function findSeoCityByGeoFuzzy(cityName: string | null | undefined, stateCode: string | null | undefined): SeoCity | null {
+  const exact = findSeoCityByGeo(cityName, stateCode);
+  if (exact) return exact;
+  if (!cityName || !stateCode) return null;
+  const code = stateCode.toUpperCase();
+  const n = normalizeCityName(cityName);
+  if (n.length < 3) return null;
+
+  const inState = SEO_CITIES.filter((c) => c.state === code);
+  const nSt = normalizeForStVariant(cityName);
+
+  const candidates: SeoCity[] = [];
+
+  for (const c of inState) {
+    const cn = normalizeCityName(c.name);
+    const cnSt = normalizeForStVariant(c.name);
+    if (cn === n || cnSt === nSt) {
+      candidates.push(c);
+      continue;
+    }
+    // "Fresno County" / "City of Modesto" style strings from geocoders
+    if (cn.length >= 4 && (n.includes(cn) || n.startsWith(cn + ' ') || n.endsWith(' ' + cn))) {
+      candidates.push(c);
+      continue;
+    }
+    if (n.length >= 4 && (cn.includes(n) || cn.startsWith(n + ' ') || cn.endsWith(' ' + n))) {
+      candidates.push(c);
+    }
+  }
+
+  if (candidates.length === 0) return null;
+  if (candidates.length === 1) return candidates[0];
+
+  // Prefer longest city name match to reduce ambiguity (e.g. "San" matching many)
+  candidates.sort((a, b) => normalizeCityName(b.name).length - normalizeCityName(a.name).length);
+  const best = candidates[0];
+  const bestLen = normalizeCityName(best.name).length;
+  const tied = candidates.filter((c) => normalizeCityName(c.name).length === bestLen);
+  return tied.length === 1 ? best : null;
 }
 
 /** Hub city when visitor is in CA/NV/AZ but city name isn't in our list */
@@ -142,13 +195,13 @@ export function resolveLocalArea(
   const code = stateCode?.toUpperCase() ?? null;
   if (!code || !isServedState(code)) return null;
 
-  const exact = findSeoCityByGeo(geoCity, code);
-  if (exact) {
+  const resolvedCity = findSeoCityByGeoFuzzy(geoCity, code);
+  if (resolvedCity) {
     return {
-      city: exact,
+      city: resolvedCity,
       approximate: false,
       detectedCityName: geoCity ?? undefined,
-      popular: popularSituationsForCity(exact),
+      popular: popularSituationsForCity(resolvedCity),
     };
   }
 
