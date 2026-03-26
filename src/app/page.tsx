@@ -92,10 +92,10 @@ export default function HomePage() {
                   <span aria-hidden>☎</span> Call 559-991-2190
                 </a>
                 <Link
-                  href="/areas"
+                  href="/foreclosure-options"
                   className="touch-manipulation inline-flex min-h-[52px] items-center justify-center rounded-xl border-2 border-[#c9a86c]/40 px-6 py-3.5 text-[15px] font-semibold text-white transition hover:border-[#c9a86c] hover:bg-white/5 active:scale-[0.99]"
                 >
-                  Find help in your area →
+                  See all my options →
                 </Link>
               </div>
             </div>

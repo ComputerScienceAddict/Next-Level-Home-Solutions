@@ -16,8 +16,8 @@ function PhoneIcon({ className }: { className?: string }) {
 
 const navLinks = [
   { href: '/', label: 'Home' },
+  { href: '/foreclosure-options', label: 'Foreclosure Options' },
   { href: '/areas', label: 'Get Help' },
-  { href: '/probate-help', label: 'Probate Help' },
   { href: '/get-offer', label: 'Get Offer' },
 ];
 

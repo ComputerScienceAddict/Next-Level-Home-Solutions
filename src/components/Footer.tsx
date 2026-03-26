@@ -47,6 +47,12 @@ export default function Footer() {
             <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#c9a86c]/90">Explore</p>
             <nav className="mt-4 flex flex-col gap-1 text-sm sm:gap-2.5">
               <Link
+                href="/foreclosure-options"
+                className="touch-manipulation rounded-lg py-2.5 text-white/80 transition hover:bg-white/[0.06] hover:text-white sm:py-0 sm:hover:bg-transparent"
+              >
+                Foreclosure options
+              </Link>
+              <Link
                 href="/areas"
                 className="touch-manipulation rounded-lg py-2.5 text-white/80 transition hover:bg-white/[0.06] hover:text-white sm:py-0 sm:hover:bg-transparent"
               >
