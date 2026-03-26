@@ -50,19 +50,7 @@ export default function Footer() {
                 href="/areas"
                 className="touch-manipulation rounded-lg py-2.5 text-white/80 transition hover:bg-white/[0.06] hover:text-white sm:py-0 sm:hover:bg-transparent"
               >
-                Areas &amp; situations
-              </Link>
-              <Link
-                href="/how-we-work"
-                className="touch-manipulation rounded-lg py-2.5 text-white/80 transition hover:bg-white/[0.06] hover:text-white sm:py-0 sm:hover:bg-transparent"
-              >
-                How we work
-              </Link>
-              <Link
-                href="/stay-in-your-home"
-                className="touch-manipulation rounded-lg py-2.5 text-white/80 transition hover:bg-white/[0.06] hover:text-white sm:py-0 sm:hover:bg-transparent"
-              >
-                Stay in your home
+                Get help in your area
               </Link>
               <Link
                 href="/probate-help"
@@ -71,16 +59,10 @@ export default function Footer() {
                 Probate help
               </Link>
               <Link
-                href="/#faq"
+                href="/get-offer"
                 className="touch-manipulation rounded-lg py-2.5 text-white/80 transition hover:bg-white/[0.06] hover:text-white sm:py-0 sm:hover:bg-transparent"
               >
-                FAQ
-              </Link>
-              <Link
-                href="/contact"
-                className="touch-manipulation rounded-lg py-2.5 text-white/80 transition hover:bg-white/[0.06] hover:text-white sm:py-0 sm:hover:bg-transparent"
-              >
-                Contact
+                Get your cash offer
               </Link>
             </nav>
           </div>

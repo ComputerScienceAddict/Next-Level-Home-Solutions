@@ -26,28 +26,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/how-we-work`,
+      url: `${baseUrl}/areas`,
       lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/stay-in-your-home`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.8,
+      changeFrequency: 'weekly',
+      priority: 0.9,
     },
     {
       url: `${baseUrl}/probate-help`,
       lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/contact`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.7,
     },
     {
       url: `${baseUrl}/terms-conditions`,
@@ -66,18 +54,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: now,
       changeFrequency: 'yearly',
       priority: 0.3,
-    },
-    {
-      url: `${baseUrl}/areas`,
-      lastModified: now,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/sell`,
-      lastModified: now,
-      changeFrequency: 'weekly',
-      priority: 0.85,
     },
     ...seoPages,
   ];

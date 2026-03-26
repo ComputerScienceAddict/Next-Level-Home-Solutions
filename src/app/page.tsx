@@ -1,11 +1,14 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import LocalForYouHome from '@/components/LocalForYouHome';
 import { SITE_HOUSES_BACKGROUND_URL } from '@/config/site-assets';
 import ContactForm from '@/components/ContactForm';
 import FAQ from '@/components/FAQ';
-import Testimonials from '@/components/Testimonials';
-import Videos from '@/components/Videos';
+
+const testimonials = [
+  { quote: "I don't know where to start when it came to selling my home. With falling behind on property taxes and my home needing some work, I came across Eric. He gave me the best cash offer for my home and he is very quick and very professional to work with. We closed in 2 weeks and everything went smoothly. I would highly recommend him!", author: 'Brandy' },
+  { quote: 'I had a great experience with smooth communication throughout the process. It was quick, easy, and hassle-free. I highly recommend it.', author: 'Ignacio N. Zaragoza' },
+  { quote: "Next Level Home Solutions came through during a tough time. I had a vacant property and wanted to sell fast. Fair cash price, no hidden fees, no lengthy paperwork. The real deal!", author: 'Mark L.' },
+];
 
 export default function HomePage() {
   return (
@@ -15,7 +18,7 @@ export default function HomePage() {
         <div className="absolute inset-0">
           <Image
             src={SITE_HOUSES_BACKGROUND_URL}
-            alt="Beautiful family home - sell fast with Next Level Home Solutions in Fresno, CA"
+            alt="Beautiful family home - sell fast with Next Level Home Solutions"
             fill
             className="object-cover object-[center_35%] sm:object-center"
             priority
@@ -38,7 +41,7 @@ export default function HomePage() {
             className="mt-6 max-w-xl text-[1.05rem] leading-relaxed text-white/95 sm:mt-8 sm:text-2xl"
             style={{ textShadow: '0 2px 15px rgba(0,0,0,0.5)' }}
           >
-            Cash offers. Sell as-is. No commissions. Close in as little as 7 days. Don&apos;t wait—we&apos;re here to help.
+            Cash offers. Sell as-is. No commissions. Close in as little as 7&nbsp;days.
           </p>
           <div className="mt-8 flex w-full max-w-md flex-col gap-3 sm:mt-10 sm:max-w-none sm:flex-row sm:flex-wrap sm:gap-4">
             <a
@@ -61,9 +64,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <LocalForYouHome />
-
-      {/* Foreclosure help — prominent for older homeowners who may not know their options */}
+      {/* Foreclosure help */}
       <section className="border-t border-[#c9a86c]/15 bg-gradient-to-b from-[#1a1612] to-[#1e2d3d]">
         <div className="mx-auto max-w-5xl px-4 py-14 sm:px-5 sm:py-20 md:py-24">
           <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
@@ -80,13 +81,8 @@ export default function HomePage() {
                 If you&apos;ve received a notice of default or are falling behind on your mortgage, the
                 situation can feel overwhelming. But foreclosure is <strong className="text-white">not</strong> your
                 only path. Many homeowners don&apos;t realize they can sell their home for cash
-                — even at this stage — and walk away with money in their pocket instead
+                &mdash; even at this stage &mdash; and walk away with money in their pocket instead
                 of a foreclosure on their record.
-              </p>
-              <p className="mt-4 text-[15px] leading-relaxed text-white/80 sm:text-base">
-                We&apos;ve helped families across 14 states navigate this exact situation.
-                No judgment, no pressure — just a straightforward conversation about what&apos;s
-                possible for <em>your</em> home.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
                 <a
@@ -96,10 +92,10 @@ export default function HomePage() {
                   <span aria-hidden>☎</span> Call 559-991-2190
                 </a>
                 <Link
-                  href="/sell/foreclosure/fresno-ca"
+                  href="/areas"
                   className="touch-manipulation inline-flex min-h-[52px] items-center justify-center rounded-xl border-2 border-[#c9a86c]/40 px-6 py-3.5 text-[15px] font-semibold text-white transition hover:border-[#c9a86c] hover:bg-white/5 active:scale-[0.99]"
                 >
-                  Learn about foreclosure help →
+                  Find help in your area →
                 </Link>
               </div>
             </div>
@@ -117,14 +113,14 @@ export default function HomePage() {
                 <p className="text-sm font-bold text-[#c9a86c]">Can I still sell my home?</p>
                 <p className="mt-2 text-sm leading-relaxed text-white/75">
                   <strong className="text-white">Yes.</strong> In most cases you can sell your home
-                  right up until the auction date. A cash buyer like us can close quickly — often in
-                  7 to 14 days — so you can pay off the loan and keep any remaining equity.
+                  right up until the auction date. A cash buyer like us can close quickly &mdash; often in
+                  7 to 14 days &mdash; so you can pay off the loan and keep any remaining equity.
                 </p>
               </div>
               <div className="rounded-xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm sm:p-6">
                 <p className="text-sm font-bold text-[#c9a86c]">What does it cost me?</p>
                 <p className="mt-2 text-sm leading-relaxed text-white/75">
-                  <strong className="text-white">Nothing upfront.</strong> We buy homes as-is — no
+                  <strong className="text-white">Nothing upfront.</strong> We buy homes as-is &mdash; no
                   repairs, no realtor commissions, no listing fees. You get a cash offer with no
                   obligation. If it works for you, we close. If not, no hard feelings.
                 </p>
@@ -132,35 +128,35 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Additional situations row */}
+          {/* Situation cards */}
           <div className="mt-12 border-t border-white/10 pt-10 sm:mt-16 sm:pt-12">
             <p className="text-center text-xs font-bold uppercase tracking-[0.25em] text-[#c9a86c]/80">
               We also help with
             </p>
             <div className="mx-auto mt-5 grid max-w-3xl grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
               <Link
-                href="/sell/inherited-property/fresno-ca"
+                href="/probate-help"
                 className="touch-manipulation flex min-h-[56px] flex-col items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-center transition hover:border-[#c9a86c]/40 hover:bg-white/[0.06] active:scale-[0.98]"
               >
                 <span className="text-sm font-semibold text-white">Inherited property</span>
                 <span className="mt-0.5 text-[11px] text-white/50">Probate &amp; estate sales</span>
               </Link>
               <Link
-                href="/sell/divorce/fresno-ca"
+                href="/areas"
                 className="touch-manipulation flex min-h-[56px] flex-col items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-center transition hover:border-[#c9a86c]/40 hover:bg-white/[0.06] active:scale-[0.98]"
               >
                 <span className="text-sm font-semibold text-white">Divorce</span>
                 <span className="mt-0.5 text-[11px] text-white/50">Split &amp; move forward</span>
               </Link>
               <Link
-                href="/sell/house-needs-repairs/fresno-ca"
+                href="/areas"
                 className="touch-manipulation flex min-h-[56px] flex-col items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-center transition hover:border-[#c9a86c]/40 hover:bg-white/[0.06] active:scale-[0.98]"
               >
                 <span className="text-sm font-semibold text-white">Needs repairs</span>
                 <span className="mt-0.5 text-[11px] text-white/50">We buy as-is</span>
               </Link>
               <Link
-                href="/sell/bad-tenants-rental/fresno-ca"
+                href="/areas"
                 className="touch-manipulation flex min-h-[56px] flex-col items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-center transition hover:border-[#c9a86c]/40 hover:bg-white/[0.06] active:scale-[0.98]"
               >
                 <span className="text-sm font-semibold text-white">Bad tenants</span>
@@ -171,7 +167,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Form + about — side by side on desktop */}
+      {/* Form + How it works */}
       <section id="offer" className="border-t-2 border-black/10 bg-black/5">
         <div className="mx-auto max-w-5xl px-4 py-12 sm:px-5 sm:py-16 md:py-24">
           <div className="grid gap-16 lg:grid-cols-5 lg:gap-20">
@@ -213,7 +209,7 @@ export default function HomePage() {
                   </div>
                 </div>
                 <p className="mt-8 border-t border-white/10 pt-6 text-sm text-white/70">
-                  14 states: FL · TX · GA · OH · AL · VA · NY · NJ · AZ · LA · KS · NV · CA. Inherited, foreclosure, relocating—we buy as-is. No repairs. No commissions. No showings.
+                  We buy as-is across 14 states. No repairs. No commissions. No showings.
                 </p>
               </div>
             </div>
@@ -221,8 +217,31 @@ export default function HomePage() {
         </div>
       </section>
 
-      <Testimonials />
-      <Videos />
+      {/* Testimonials — static cards */}
+      <section className="border-t border-black/10 py-14 sm:py-16">
+        <div className="mx-auto max-w-5xl px-4 sm:px-5">
+          <h2 className="font-display text-2xl text-black">What people say</h2>
+          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+            {testimonials.map((t, i) => (
+              <figure
+                key={i}
+                className="rounded-xl border border-gray-950/[.1] bg-gray-950/[.01] p-5"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#1e2d3d] text-xs font-semibold text-white">
+                    {t.author.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                  </div>
+                  <figcaption className="text-sm font-medium text-black">{t.author}</figcaption>
+                </div>
+                <blockquote className="mt-3 text-sm leading-relaxed text-gray-700">
+                  &ldquo;{t.quote}&rdquo;
+                </blockquote>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <FAQ />
     </>
   );

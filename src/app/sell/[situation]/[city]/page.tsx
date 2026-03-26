@@ -218,7 +218,7 @@ export default async function SellSituationCityPage({ params }: Props) {
                   {business.phone}
                 </a>
                 <Link
-                  href="/contact"
+                  href="/get-offer"
                   className="mt-3 block min-h-[44px] py-2 text-center text-sm font-medium text-[#8b7355] hover:underline"
                 >
                   Or send a message
@@ -247,20 +247,16 @@ export default async function SellSituationCityPage({ params }: Props) {
         <div className="mx-auto max-w-5xl px-4 text-center sm:px-5">
           <p className="text-center text-sm leading-loose text-warmgray">
             Related:{' '}
-            <Link href="/how-we-work" className="touch-manipulation inline-flex min-h-[44px] items-center font-medium text-[#8b7355] hover:underline">
-              How we work
-            </Link>
-            <span className="mx-1 text-black/20">·</span>
             <Link href="/probate-help" className="touch-manipulation inline-flex min-h-[44px] items-center font-medium text-[#8b7355] hover:underline">
               Probate help
             </Link>
             <span className="mx-1 text-black/20">·</span>
             <Link href="/areas" className="touch-manipulation inline-flex min-h-[44px] items-center font-medium text-[#8b7355] hover:underline">
-              Areas picker
+              Find help in your area
             </Link>
             <span className="mx-1 text-black/20">·</span>
-            <Link href="/sell" className="touch-manipulation inline-flex min-h-[44px] items-center font-medium text-[#8b7355] hover:underline">
-              All pages
+            <Link href="/get-offer" className="touch-manipulation inline-flex min-h-[44px] items-center font-medium text-[#8b7355] hover:underline">
+              Get your cash offer
             </Link>
           </p>
         </div>

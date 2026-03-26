@@ -16,11 +16,9 @@ function PhoneIcon({ className }: { className?: string }) {
 
 const navLinks = [
   { href: '/', label: 'Home' },
-  { href: '/areas', label: 'Areas' },
-  { href: '/how-we-work', label: 'How It Works' },
-  { href: '/probate-help', label: 'Probate' },
-  { href: '/#faq', label: 'FAQ' },
-  { href: '/contact', label: 'Contact' },
+  { href: '/areas', label: 'Get Help' },
+  { href: '/probate-help', label: 'Probate Help' },
+  { href: '/get-offer', label: 'Get Offer' },
 ];
 
 export default function Header() {
@@ -61,7 +59,6 @@ export default function Header() {
               href={link.href}
               className={`text-[13px] font-medium tracking-wide whitespace-nowrap transition xl:text-sm ${
                 pathname === link.href ||
-                (link.href === '/#faq' && pathname === '/') ||
                 (link.href === '/areas' && (pathname.startsWith('/areas') || pathname.startsWith('/sell')))
                   ? 'text-black'
                   : 'text-gray-600 hover:text-black'

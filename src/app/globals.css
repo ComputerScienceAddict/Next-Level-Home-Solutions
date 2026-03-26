@@ -105,27 +105,3 @@ nextjs-portal > * {
     transform: translateY(-1px);
   }
 }
-
-/* Marquee animation - ensure it runs */
-@keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-@keyframes marquee-reverse {
-  from {
-    transform: translateX(-50%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-.animate-marquee {
-  animation: marquee var(--duration, 25s) linear infinite;
-}
-.animate-marquee-reverse {
-  animation: marquee-reverse var(--duration, 25s) linear infinite;
-}
