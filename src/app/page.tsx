@@ -63,6 +63,114 @@ export default function HomePage() {
 
       <LocalForYouHome />
 
+      {/* Foreclosure help — prominent for older homeowners who may not know their options */}
+      <section className="border-t border-[#c9a86c]/15 bg-gradient-to-b from-[#1a1612] to-[#1e2d3d]">
+        <div className="mx-auto max-w-5xl px-4 py-14 sm:px-5 sm:py-20 md:py-24">
+          <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#c9a86c]">
+                Foreclosure help
+              </p>
+              <h2 className="mt-3 font-display text-[1.75rem] leading-tight text-white sm:text-3xl md:text-4xl">
+                Behind on payments?
+                <br />
+                <span className="text-[#c9a86c]">You still have options.</span>
+              </h2>
+              <p className="mt-5 text-[15px] leading-relaxed text-white/80 sm:text-base">
+                If you&apos;ve received a notice of default or are falling behind on your mortgage, the
+                situation can feel overwhelming. But foreclosure is <strong className="text-white">not</strong> your
+                only path. Many homeowners don&apos;t realize they can sell their home for cash
+                — even at this stage — and walk away with money in their pocket instead
+                of a foreclosure on their record.
+              </p>
+              <p className="mt-4 text-[15px] leading-relaxed text-white/80 sm:text-base">
+                We&apos;ve helped families across 14 states navigate this exact situation.
+                No judgment, no pressure — just a straightforward conversation about what&apos;s
+                possible for <em>your</em> home.
+              </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
+                <a
+                  href="tel:559-991-2190"
+                  className="touch-manipulation inline-flex min-h-[52px] items-center justify-center gap-2 rounded-xl bg-[#c9a86c] px-6 py-3.5 text-[15px] font-bold text-[#1e2d3d] shadow-lg transition hover:bg-[#dfc08a] active:scale-[0.99]"
+                >
+                  <span aria-hidden>☎</span> Call 559-991-2190
+                </a>
+                <Link
+                  href="/sell/foreclosure/fresno-ca"
+                  className="touch-manipulation inline-flex min-h-[52px] items-center justify-center rounded-xl border-2 border-[#c9a86c]/40 px-6 py-3.5 text-[15px] font-semibold text-white transition hover:border-[#c9a86c] hover:bg-white/5 active:scale-[0.99]"
+                >
+                  Learn about foreclosure help →
+                </Link>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-4 sm:gap-5">
+              <div className="rounded-xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm sm:p-6">
+                <p className="text-sm font-bold text-[#c9a86c]">What is foreclosure?</p>
+                <p className="mt-2 text-sm leading-relaxed text-white/75">
+                  Foreclosure is when the bank takes your home because mortgage payments have
+                  fallen behind. Once the process starts, the timeline can move fast.
+                  But selling before the bank forecloses lets you control the outcome.
+                </p>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm sm:p-6">
+                <p className="text-sm font-bold text-[#c9a86c]">Can I still sell my home?</p>
+                <p className="mt-2 text-sm leading-relaxed text-white/75">
+                  <strong className="text-white">Yes.</strong> In most cases you can sell your home
+                  right up until the auction date. A cash buyer like us can close quickly — often in
+                  7 to 14 days — so you can pay off the loan and keep any remaining equity.
+                </p>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm sm:p-6">
+                <p className="text-sm font-bold text-[#c9a86c]">What does it cost me?</p>
+                <p className="mt-2 text-sm leading-relaxed text-white/75">
+                  <strong className="text-white">Nothing upfront.</strong> We buy homes as-is — no
+                  repairs, no realtor commissions, no listing fees. You get a cash offer with no
+                  obligation. If it works for you, we close. If not, no hard feelings.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Additional situations row */}
+          <div className="mt-12 border-t border-white/10 pt-10 sm:mt-16 sm:pt-12">
+            <p className="text-center text-xs font-bold uppercase tracking-[0.25em] text-[#c9a86c]/80">
+              We also help with
+            </p>
+            <div className="mx-auto mt-5 grid max-w-3xl grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+              <Link
+                href="/sell/inherited-property/fresno-ca"
+                className="touch-manipulation flex min-h-[56px] flex-col items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-center transition hover:border-[#c9a86c]/40 hover:bg-white/[0.06] active:scale-[0.98]"
+              >
+                <span className="text-sm font-semibold text-white">Inherited property</span>
+                <span className="mt-0.5 text-[11px] text-white/50">Probate &amp; estate sales</span>
+              </Link>
+              <Link
+                href="/sell/divorce/fresno-ca"
+                className="touch-manipulation flex min-h-[56px] flex-col items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-center transition hover:border-[#c9a86c]/40 hover:bg-white/[0.06] active:scale-[0.98]"
+              >
+                <span className="text-sm font-semibold text-white">Divorce</span>
+                <span className="mt-0.5 text-[11px] text-white/50">Split &amp; move forward</span>
+              </Link>
+              <Link
+                href="/sell/house-needs-repairs/fresno-ca"
+                className="touch-manipulation flex min-h-[56px] flex-col items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-center transition hover:border-[#c9a86c]/40 hover:bg-white/[0.06] active:scale-[0.98]"
+              >
+                <span className="text-sm font-semibold text-white">Needs repairs</span>
+                <span className="mt-0.5 text-[11px] text-white/50">We buy as-is</span>
+              </Link>
+              <Link
+                href="/sell/bad-tenants-rental/fresno-ca"
+                className="touch-manipulation flex min-h-[56px] flex-col items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-center transition hover:border-[#c9a86c]/40 hover:bg-white/[0.06] active:scale-[0.98]"
+              >
+                <span className="text-sm font-semibold text-white">Bad tenants</span>
+                <span className="mt-0.5 text-[11px] text-white/50">Tired landlord? We buy it</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Form + about — side by side on desktop */}
       <section id="offer" className="border-t-2 border-black/10 bg-black/5">
         <div className="mx-auto max-w-5xl px-4 py-12 sm:px-5 sm:py-16 md:py-24">
