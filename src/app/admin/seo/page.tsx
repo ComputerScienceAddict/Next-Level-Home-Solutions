@@ -247,7 +247,7 @@ export default function AdminSeoPage() {
                     {analyzing ? 'Analyzing...' : 'Run AI Analysis'}
                   </button>
                   <Link
-                    href="/sell"
+                    href="/areas"
                     className="block w-full rounded-lg border border-[#8b7355] px-4 py-2 text-center text-sm font-medium text-[#8b7355] hover:bg-[#8b7355]/5"
                   >
                     View Live Pages

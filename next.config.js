@@ -1,5 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [
+      // Old site sent everyone here; social/ads may still link to it.
+      { source: '/welcome', destination: '/', permanent: true },
+      { source: '/welcome/', destination: '/', permanent: true },
+      { source: '/how-we-work', destination: '/', permanent: true },
+      { source: '/contact', destination: '/get-offer', permanent: true },
+      { source: '/sell', destination: '/areas', permanent: true },
+    ];
+  },
   images: {
     remotePatterns: [
       {

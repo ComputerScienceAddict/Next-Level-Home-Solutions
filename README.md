@@ -1,38 +1,58 @@
-# Monte Investments
+# Next Level Home Solutions
 
-A React/Next.js recreation of the Monte Investments cash home buyer website. Fast, hassle-free home sales across the Central Valley, Las Vegas, and Sonoma County.
+A Next.js website for Next Level Home Solutions — cash home buyers serving Central California. Fast, hassle-free home sales with same-day offers.
 
 ## Getting Started
 
-1. Install dependencies:
+1. Copy `.env.example` to `.env.local` and fill in your keys:
+
+```bash
+cp .env.example .env.local
+```
+
+2. Install dependencies:
 
 ```bash
 npm install
 ```
 
-2. Run the development server:
+3. Run the development server:
 
 ```bash
 npm run dev
 ```
 
-3. Open [http://localhost:3000](http://localhost:3000) in your browser.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Tech Stack
 
 - **Next.js 14** - React framework with App Router
 - **TypeScript** - Type safety
 - **Tailwind CSS** - Styling
-- **React** - UI components
+- **Supabase** - Database (leads, notices)
+- **Nodemailer** - Lead email notifications
 
 ## Pages
 
-- `/` - Home page with hero, benefits, how we work, FAQ, testimonials
-- `/how-we-work` - Process and benefits
-- `/contact` - Contact form and info
-- `/terms-conditions` - Terms (placeholder)
-- `/privacy-policy` - Privacy (placeholder)
-- `/accessibility` - Accessibility (placeholder)
+- `/` - Home page with hero, foreclosure help, how it works, testimonials, FAQ
+- `/get-offer` - Cash offer request form
+- `/foreclosure-options` - All foreclosure options explained with per-option help
+- `/areas` - Pick your situation and city to view a tailored page
+- `/sell/[situation]/[city]` - SEO landing pages (e.g. `/sell/foreclosure/fresno-ca`)
+- `/probate-help` - Probate and inherited property help
+- `/terms-conditions` - Terms and conditions
+- `/privacy-policy` - Privacy policy
+- `/accessibility` - Accessibility statement
+- `/admin` - Leads dashboard (password-protected)
+- `/admin/seo` - AI-powered SEO content manager
+
+## Environment Variables
+
+See `.env.example` for all available variables. Key ones:
+
+- `NEXT_PUBLIC_SITE_URL` - Canonical domain for SEO (sitemap, robots, meta tags)
+- `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase connection
+- `GMAIL_ADDRESS` / `GMAIL_APP_PASSWORD` - Lead notification emails
 
 ## Build
 
