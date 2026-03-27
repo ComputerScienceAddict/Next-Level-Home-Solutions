@@ -49,6 +49,8 @@ export async function POST(req: Request) {
     const subjectLine = record.subject ? escapeHtml(String(record.subject)) : '';
     const messageBody = hasMessage ? escapeHtml(String(record.message)).replace(/\n/g, '<br/>') : '';
     const sourceSafe = escapeHtml(String(record.source || 'website'));
+    const contextNoteRaw = record.context_note ? String(record.context_note).trim() : '';
+    const contextNote = contextNoteRaw ? escapeHtml(contextNoteRaw) : '';
 
     const emailHtml = `
 <!DOCTYPE html>
@@ -89,6 +91,14 @@ export async function POST(req: Request) {
               <p style="margin: 0; font-size: 15px; color: #1e2d3d;">${phone}</p>
             </td>
           </tr>
+          ${contextNote ? `
+          <tr>
+            <td style="padding: 20px 0; border-bottom: 1px solid #edf2f7;">
+              <p style="margin: 0 0 6px; color: #8b7355; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;">What they asked about</p>
+              <p style="margin: 0; font-size: 15px; color: #1e2d3d; line-height: 1.5;">${contextNote}</p>
+            </td>
+          </tr>
+          ` : ''}
           ${isOffer ? `
           <tr>
             <td style="padding: 20px 0; border-bottom: 1px solid #edf2f7;">
@@ -119,7 +129,7 @@ export async function POST(req: Request) {
       from: `"Next Level Home Solutions" <${gmailUser}>`,
       to: NOTIFY_EMAILS,
       replyTo: record.email,
-      subject: `${isOffer ? '🏠 Offer' : '✉️ Contact'}: ${record.name} — Next Level Home Solutions`,
+      subject: `${isOffer ? '🏠 Offer' : '✉️ Contact'}: ${record.name}${contextNoteRaw ? ` · ${contextNoteRaw}` : ''} — Next Level Home Solutions`,
       html: emailHtml,
     });
 

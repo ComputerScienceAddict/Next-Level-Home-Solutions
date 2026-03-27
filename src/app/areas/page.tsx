@@ -1,16 +1,30 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { business } from '@/config/business';
 import { SEO_CITIES, SELLER_SITUATIONS, getSituationBySlug } from '@/data/seo-targets';
 import { useDetectArea } from '@/hooks/useDetectArea';
 
-export default function AreasPage() {
+function AreasPageInner() {
+  const searchParams = useSearchParams();
   const [selectedSituation, setSelectedSituation] = useState<string | null>(null);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const userPickedCity = useRef(false);
   const { data: geo } = useDetectArea();
+
+  useEffect(() => {
+    const sit = searchParams.get('situation');
+    if (sit && getSituationBySlug(sit)) {
+      setSelectedSituation(sit);
+    }
+    const citySlug = searchParams.get('city');
+    if (citySlug && SEO_CITIES.some((c) => c.slug === citySlug)) {
+      userPickedCity.current = true;
+      setSelectedCity(citySlug);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (!geo || !('matched' in geo) || !geo.matched) return;
@@ -133,5 +147,17 @@ export default function AreasPage() {
         </div>
       </section>
     </>
+  );
+}
+
+export default function AreasPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="mx-auto max-w-5xl px-4 py-16 text-center text-warmgray sm:px-5">Loading…</div>
+      }
+    >
+      <AreasPageInner />
+    </Suspense>
   );
 }

@@ -1,6 +1,26 @@
 import Link from 'next/link';
 import ContactForm from '@/components/ContactForm';
 
+function OptionHelpActions({ interestSlug, cashOfferWording }: { interestSlug: string; cashOfferWording?: boolean }) {
+  const href = `/get-offer?interest=${encodeURIComponent(interestSlug)}`;
+  return (
+    <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
+      <a
+        href="tel:559-991-2190"
+        className="touch-manipulation inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-[#c9a86c] px-6 py-3 text-sm font-bold text-[#1e2d3d] shadow-lg transition hover:bg-[#dfc08a] active:scale-[0.99]"
+      >
+        Call 559-991-2190
+      </a>
+      <Link
+        href={href}
+        className="touch-manipulation inline-flex min-h-[48px] items-center justify-center rounded-xl border-2 border-[#8b7355] px-6 py-3 text-sm font-semibold text-[#8b7355] transition hover:bg-[#8b7355]/5 active:scale-[0.99]"
+      >
+        {cashOfferWording ? 'Get a cash offer online →' : 'Get help with this option →'}
+      </Link>
+    </div>
+  );
+}
+
 export const metadata = {
   title: 'What Are My Options? | Foreclosure Help | Next Level Home Solutions',
   description:
@@ -14,6 +34,7 @@ export const metadata = {
 const options = [
   {
     number: '1',
+    interestSlug: 'reinstatement',
     title: 'Reinstatement',
     description:
       'Pay the total amount you owe in back payments, late fees, and penalties in one lump sum to bring your mortgage current. This stops the foreclosure process immediately.',
@@ -22,6 +43,7 @@ const options = [
   },
   {
     number: '2',
+    interestSlug: 'loan-modification',
     title: 'Loan Modification',
     description:
       'Work with your lender to permanently change the terms of your mortgage — lower interest rate, extended repayment period, or reduced principal — so the monthly payment becomes affordable.',
@@ -30,6 +52,7 @@ const options = [
   },
   {
     number: '3',
+    interestSlug: 'forbearance',
     title: 'Forbearance Agreement',
     description:
       'Your lender temporarily pauses or reduces your payments for a set period. After the forbearance ends, you repay the missed amount through a repayment plan or modification.',
@@ -38,6 +61,7 @@ const options = [
   },
   {
     number: '4',
+    interestSlug: 'chapter-13-bankruptcy',
     title: 'Chapter 13 Bankruptcy',
     description:
       'Filing Chapter 13 creates an automatic stay that halts the foreclosure. You then set up a 3-to-5-year repayment plan to catch up on missed payments while keeping your home.',
@@ -46,6 +70,7 @@ const options = [
   },
   {
     number: '5',
+    interestSlug: 'short-sale',
     title: 'Short Sale',
     description:
       'Sell your home for less than what you owe on the mortgage, with your lender\'s approval. The lender agrees to accept the lower amount and forgive the remaining balance.',
@@ -54,6 +79,7 @@ const options = [
   },
   {
     number: '6',
+    interestSlug: 'cash-sale',
     title: 'Cash Sale (Sell As-Is)',
     description:
       'Sell your home directly to a cash buyer like us. No repairs, no commissions, no waiting for bank approvals. You receive a fair cash offer, choose your closing date, and move forward — often in as little as 7 to 14 days.',
@@ -88,7 +114,8 @@ export default function ForeclosureOptionsPage() {
             {options.map((opt) => (
               <div
                 key={opt.number}
-                className={`rounded-2xl border p-6 shadow-sm sm:p-8 ${
+                id={opt.interestSlug}
+                className={`scroll-mt-24 rounded-2xl border p-6 shadow-sm sm:p-8 ${
                   opt.highlight
                     ? 'border-[#c9a86c]/40 bg-gradient-to-br from-[#faf9f7] to-[#f5f0e8] ring-2 ring-[#c9a86c]/20'
                     : 'border-black/[0.08] bg-white'
@@ -124,22 +151,7 @@ export default function ForeclosureOptionsPage() {
                         <p className="mt-1 text-sm text-warmgray">{opt.timeframe}</p>
                       </div>
                     </div>
-                    {opt.highlight && (
-                      <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:gap-4">
-                        <a
-                          href="tel:559-991-2190"
-                          className="touch-manipulation inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-[#c9a86c] px-6 py-3 text-sm font-bold text-[#1e2d3d] shadow-lg transition hover:bg-[#dfc08a] active:scale-[0.99]"
-                        >
-                          Call 559-991-2190
-                        </a>
-                        <Link
-                          href="/get-offer"
-                          className="touch-manipulation inline-flex min-h-[48px] items-center justify-center rounded-xl border-2 border-[#8b7355] px-6 py-3 text-sm font-semibold text-[#8b7355] transition hover:bg-[#8b7355]/5 active:scale-[0.99]"
-                        >
-                          Get a cash offer online →
-                        </Link>
-                      </div>
-                    )}
+                    <OptionHelpActions interestSlug={opt.interestSlug} cashOfferWording={!!opt.highlight} />
                   </div>
                 </div>
               </div>

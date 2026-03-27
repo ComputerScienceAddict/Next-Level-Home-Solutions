@@ -1,4 +1,5 @@
 import ContactForm from '@/components/ContactForm';
+import { labelForForeclosureInterest } from '@/lib/foreclosure-interest';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 
@@ -11,7 +12,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function GetOfferPage() {
+type SearchParams = { interest?: string | string[] };
+
+export default function GetOfferPage({ searchParams }: { searchParams?: SearchParams }) {
+  const raw = searchParams?.interest;
+  const interestSlug = typeof raw === 'string' ? raw : Array.isArray(raw) ? raw[0] : undefined;
+  const interestLabel = labelForForeclosureInterest(interestSlug);
+  const leadContext = interestLabel ? `Foreclosure options — interested in: ${interestLabel}` : null;
+
   return (
     <section className="min-h-[80vh] bg-gradient-to-b from-black/5 to-transparent">
       <div className="mx-auto max-w-xl px-5 py-16 md:py-24">
@@ -29,10 +37,18 @@ export default function GetOfferPage() {
               Get your cash offer
             </h1>
             <p className="mt-3 text-[15px] leading-relaxed text-warmgray/90">
-              Fill out the form below. We&apos;ll respond same day with a fair cash offer.
+              {interestLabel ? (
+                <>
+                  You selected <strong className="text-[#1e2d3d]">{interestLabel}</strong>. Tell us about your
+                  situation and property &mdash; we&apos;ll respond same day and help you weigh every option, not
+                  just a cash sale.
+                </>
+              ) : (
+                <>Fill out the form below. We&apos;ll respond same day with a fair cash offer.</>
+              )}
             </p>
             <div className="mt-8">
-              <ContactForm />
+              <ContactForm leadContext={leadContext} />
             </div>
           </div>
         </div>

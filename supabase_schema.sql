@@ -195,7 +195,7 @@ CREATE POLICY "Allow anon read seo_analysis" ON seo_analysis
   FOR SELECT TO anon USING (true);
 
 -- ---------------------------------------------------------------------------
--- OPTIONAL: store welcome / area prefs in Supabase instead of localStorage
+-- OPTIONAL: store area prefs in Supabase instead of localStorage
 -- (see src/lib/client-storage-keys.ts). Handy for cross-device sync or analytics.
 -- Flow: generate crypto.randomUUID() once in the browser, save as nlhs_anon_id
 -- in localStorage; upsert rows by anon_key via a small API route (prefer service

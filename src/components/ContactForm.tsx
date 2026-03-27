@@ -6,12 +6,15 @@ interface ContactFormProps {
   variant?: 'default' | 'compact' | 'message';
   title?: string;
   subtitle?: string;
+  /** Shown in lead emails only (e.g. which foreclosure option they clicked). */
+  leadContext?: string | null;
 }
 
 export default function ContactForm({
   variant = 'default',
   title = 'Get your offer',
   subtitle = 'Same day, no obligation. Or call/text 559-991-2190.',
+  leadContext = null,
 }: ContactFormProps) {
   const [agreed, setAgreed] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -67,6 +70,9 @@ export default function ContactForm({
         record.state = fd.get('state') ? String(fd.get('state')) : null;
         record.zip = fd.get('zip') ? String(fd.get('zip')) : null;
         record.agreed_communications = agreed;
+        if (leadContext?.trim()) {
+          record.context_note = leadContext.trim();
+        }
       }
 
       // 1. SEND EMAIL + SAVE (via Next.js API route – no Edge Function needed)

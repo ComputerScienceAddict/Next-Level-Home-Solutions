@@ -142,21 +142,21 @@ export default function HomePage() {
                 <span className="mt-0.5 text-[11px] text-white/50">Probate &amp; estate sales</span>
               </Link>
               <Link
-                href="/areas"
+                href="/areas?situation=divorce"
                 className="touch-manipulation flex min-h-[56px] flex-col items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-center transition hover:border-[#c9a86c]/40 hover:bg-white/[0.06] active:scale-[0.98]"
               >
                 <span className="text-sm font-semibold text-white">Divorce</span>
                 <span className="mt-0.5 text-[11px] text-white/50">Split &amp; move forward</span>
               </Link>
               <Link
-                href="/areas"
+                href="/areas?situation=house-needs-repairs"
                 className="touch-manipulation flex min-h-[56px] flex-col items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-center transition hover:border-[#c9a86c]/40 hover:bg-white/[0.06] active:scale-[0.98]"
               >
                 <span className="text-sm font-semibold text-white">Needs repairs</span>
                 <span className="mt-0.5 text-[11px] text-white/50">We buy as-is</span>
               </Link>
               <Link
-                href="/areas"
+                href="/areas?situation=bad-tenants-rental"
                 className="touch-manipulation flex min-h-[56px] flex-col items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-center transition hover:border-[#c9a86c]/40 hover:bg-white/[0.06] active:scale-[0.98]"
               >
                 <span className="text-sm font-semibold text-white">Bad tenants</span>

@@ -1,6 +1,6 @@
 import { NLHS_STORAGE } from '@/lib/client-storage-keys';
 
-/** Saved when user picks a situation on /welcome (see `NLHS_STORAGE` docs). */
+/** Preferred situation slug in localStorage (see `NLHS_STORAGE` docs). */
 export const PREFERRED_SITUATION_KEY = NLHS_STORAGE.PREFERRED_SITUATION;
 export const PREFERRED_CITY_KEY = NLHS_STORAGE.PREFERRED_CITY;
 
