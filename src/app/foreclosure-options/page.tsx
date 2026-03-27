@@ -149,35 +149,35 @@ export default function ForeclosureOptionsPage() {
       </section>
 
       {/* Bottom explainer */}
-      <section className="border-t border-black/10 bg-gradient-to-b from-[#1a1612] to-[#1e2d3d] py-12 sm:py-16">
+      <section className="border-t-2 border-black/10 bg-black/5 py-12 sm:py-16">
         <div className="mx-auto max-w-5xl px-4 sm:px-5">
           <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
             <div>
-              <h2 className="font-display text-2xl text-white sm:text-3xl">
+              <h2 className="font-display text-2xl text-[#1e2d3d] sm:text-3xl">
                 Not sure which option is right?
               </h2>
-              <p className="mt-4 text-[15px] leading-relaxed text-white/80 sm:text-base">
+              <p className="mt-4 text-[15px] leading-relaxed text-gray-700 sm:text-base">
                 Every situation is unique. The specific solutions available depend on your
                 loan details, how far behind you are, and your current finances. We help homeowners
                 explore every option &mdash; not just cash sales.
               </p>
-              <p className="mt-4 text-[15px] leading-relaxed text-white/80 sm:text-base">
-                But most of the time, when homeowners come to us, a <strong className="text-white">cash sale</strong> is
+              <p className="mt-4 text-[15px] leading-relaxed text-gray-700 sm:text-base">
+                But most of the time, when homeowners come to us, a <strong className="text-[#1e2d3d]">cash sale</strong> is
                 the fastest, simplest way to stop foreclosure and move forward. No repairs, no commissions,
                 no waiting. We close on your timeline.
               </p>
               <p className="mt-6">
-                <a href="tel:559-991-2190" className="text-lg font-semibold text-[#c9a86c] hover:underline">
+                <a href="tel:559-991-2190" className="text-lg font-semibold text-[#8b7355] hover:underline">
                   559-991-2190
                 </a>
-                <span className="text-white/60"> &mdash; Call or text anytime. Free, confidential conversation.</span>
+                <span className="text-gray-600"> &mdash; Call or text anytime. Free, confidential conversation.</span>
               </p>
             </div>
-            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.05] p-6 shadow-xl backdrop-blur-sm sm:p-8">
-              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#1e2d3d] via-[#c9a86c] to-[#1e2d3d]" />
-              <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#c9a86c]">Free, no obligation</p>
-              <h3 className="mt-1 font-display text-xl font-semibold text-white">Get your cash offer</h3>
-              <p className="mt-2 text-sm text-white/70">Same day response. No fees. No pressure.</p>
+            <div className="relative overflow-hidden rounded-2xl border border-black/[0.06] bg-white p-6 shadow-[0_4px_24px_rgba(0,0,0,0.06),0_0_1px_rgba(0,0,0,0.04)] ring-1 ring-black/[0.04] sm:p-8">
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#1e2d3d] via-[#8b7355] to-[#1e2d3d]" />
+              <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#8b7355]">Free, no obligation</p>
+              <h3 className="mt-1 font-display text-xl font-semibold text-[#1e2d3d]">Get your cash offer</h3>
+              <p className="mt-2 text-sm text-warmgray/90">Same day response. No fees. No pressure.</p>
               <div className="mt-6">
                 <ContactForm />
               </div>
