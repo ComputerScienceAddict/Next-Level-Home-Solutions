@@ -106,6 +106,18 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${instrument.variable} ${plex.variable}`}>
       <head>
+        {/* Google tag (gtag.js) — Google Ads */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18044630783" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'AW-18044630783');
+`,
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

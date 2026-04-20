@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface ContactFormProps {
   variant?: 'default' | 'compact' | 'message';
@@ -16,6 +17,7 @@ export default function ContactForm({
   subtitle = 'Same day, no obligation. Or call/text 559-991-2190.',
   leadContext = null,
 }: ContactFormProps) {
+  const router = useRouter();
   const [agreed, setAgreed] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
@@ -84,9 +86,13 @@ export default function ContactForm({
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json.error || `Request failed (${res.status})`);
 
-      setStatus('success');
-      setAgreed(false);
-      form.reset();
+      if (variant === 'message') {
+        setStatus('success');
+        setAgreed(false);
+        form.reset();
+      } else {
+        router.push('/get-offer/thank-you');
+      }
     } catch (err) {
       setStatus('error');
       const msg =
