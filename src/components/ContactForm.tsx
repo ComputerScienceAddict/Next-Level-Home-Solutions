@@ -21,6 +21,17 @@ export default function ContactForm({
   const [agreed, setAgreed] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  const validateEmail = (email: string): boolean => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const validatePhone = (phone: string): boolean => {
+    if (!phone) return true; // Optional field
+    const cleaned = phone.replace(/\D/g, '');
+    return cleaned.length >= 10;
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -28,28 +39,42 @@ export default function ContactForm({
     const fd = new FormData(form);
     const name = String(fd.get('name') ?? '').trim();
     const email = String(fd.get('email') ?? '').trim();
+    const phone = String(fd.get('phone') ?? '').trim();
 
-    if (!name || !email) {
-      setStatus('error');
-      setErrorMsg('Please enter your name and email.');
-      return;
+    // Reset errors
+    setFieldErrors({});
+    setErrorMsg('');
+
+    // Validate fields
+    const errors: Record<string, string> = {};
+    if (!name) errors.name = 'Name is required';
+    if (!email) {
+      errors.email = 'Email is required';
+    } else if (!validateEmail(email)) {
+      errors.email = 'Please enter a valid email';
     }
+    if (phone && !validatePhone(phone)) {
+      errors.phone = 'Please enter a valid phone number';
+    }
+
     if (variant !== 'message') {
       if (!agreed) {
-        setStatus('error');
-        setErrorMsg('Please check the box to agree to receive communications.');
-        return;
+        errors.agree = 'Please agree to receive communications';
       }
     } else {
       if (!fd.get('agree')) {
-        setStatus('error');
-        setErrorMsg('Please check the box to agree to the Terms and Privacy Policy.');
-        return;
+        errors.agree = 'Please agree to the Terms and Privacy Policy';
       }
     }
 
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setStatus('error');
+      setErrorMsg(Object.values(errors)[0]);
+      return;
+    }
+
     setStatus('loading');
-    setErrorMsg('');
 
     try {
       // Build record from form data
@@ -77,7 +102,6 @@ export default function ContactForm({
         }
       }
 
-      // 1. SEND EMAIL + SAVE (via Next.js API route – no Edge Function needed)
       const res = await fetch('/api/send-lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -98,75 +122,267 @@ export default function ContactForm({
       const msg =
         err instanceof Error
           ? err.message
-          : (err as { context?: { body?: { error?: string } } })?.context?.body?.error
-            ? String((err as { context: { body: { error: string } } }).context.body.error)
-            : 'Something went wrong. Check console (F12) for details.';
+          : 'Something went wrong. Please try again or call us directly.';
       setErrorMsg(msg);
     }
   };
 
+  const inputBaseClass = "w-full border-b-2 bg-transparent px-0 py-3.5 text-black placeholder:text-black/40 focus:outline-none transition-all duration-200";
+  const inputNormalClass = `${inputBaseClass} border-black/20 focus:border-gold-400`;
+  const inputErrorClass = `${inputBaseClass} border-red-400 focus:border-red-500`;
+
   if (variant === 'message') {
     return (
-      <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <input type="text" name="name" required placeholder="Name" className="input-field input-premium" />
-          <input type="email" name="email" required placeholder="Email" className="input-field input-premium" />
+      <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div className="relative">
+            <input
+              type="text"
+              name="name"
+              required
+              placeholder="Name *"
+              className={fieldErrors.name ? inputErrorClass : inputNormalClass}
+            />
+            {fieldErrors.name && <p className="mt-1 text-xs text-red-600">{fieldErrors.name}</p>}
+          </div>
+          <div className="relative">
+            <input
+              type="email"
+              name="email"
+              required
+              placeholder="Email *"
+              className={fieldErrors.email ? inputErrorClass : inputNormalClass}
+            />
+            {fieldErrors.email && <p className="mt-1 text-xs text-red-600">{fieldErrors.email}</p>}
+          </div>
         </div>
-        <input type="tel" name="phone" placeholder="Phone" className="input-field input-premium" />
-        <input type="text" name="subject" placeholder="Subject" className="input-field input-premium" />
-        <textarea name="message" rows={3} placeholder="Message" className="input-field input-premium resize-none" />
-        <label className="flex items-start gap-3 cursor-pointer text-warmgray">
-          <input type="checkbox" name="agree" required className="mt-1 h-4 w-4 shrink-0 rounded border-warmgray/40 text-[#8b7355] focus:ring-[#8b7355]/50" />
-          <span className="text-[14px] leading-snug">I agree to the <a href="/terms-conditions" className="text-[#8b7355] hover:underline">Terms</a> and <a href="/privacy-policy" className="text-[#8b7355] hover:underline">Privacy Policy</a></span>
+        <div className="relative">
+          <input
+            type="tel"
+            name="phone"
+            placeholder="Phone"
+            className={fieldErrors.phone ? inputErrorClass : inputNormalClass}
+          />
+          {fieldErrors.phone && <p className="mt-1 text-xs text-red-600">{fieldErrors.phone}</p>}
+        </div>
+        <input type="text" name="subject" placeholder="Subject" className={inputNormalClass} />
+        <textarea
+          name="message"
+          rows={4}
+          placeholder="Message"
+          className={`${inputNormalClass} resize-none`}
+        />
+        <label className={`flex items-start gap-3 cursor-pointer transition-colors ${
+          fieldErrors.agree ? 'text-red-600' : 'text-warmgray hover:text-black'
+        }`}>
+          <input
+            type="checkbox"
+            name="agree"
+            required
+            className="mt-1 h-5 w-5 shrink-0 rounded border-gray-300 text-gold-400 focus:ring-gold-400 focus:ring-2 transition-all"
+          />
+          <span className="text-[14px] leading-snug">
+            I agree to the{' '}
+            <a href="/terms-conditions" className="font-medium text-gold-400 hover:text-gold-500 underline">
+              Terms
+            </a>{' '}
+            and{' '}
+            <a href="/privacy-policy" className="font-medium text-gold-400 hover:text-gold-500 underline">
+              Privacy Policy
+            </a>
+          </span>
         </label>
-        <div role="alert" className="rounded-xl px-4 py-3 text-sm font-medium" aria-live="polite">
-          {status === 'success' && <p className="text-emerald-700">Message sent! We&apos;ll get back to you soon.</p>}
-          {status === 'error' && <p className="text-red-600">{errorMsg}</p>}
-          {status === 'loading' && <p className="text-warmgray animate-pulse">Sending…</p>}
-        </div>
-        <button type="submit" className="btn-premium w-full sm:w-auto disabled:opacity-60 disabled:cursor-not-allowed" disabled={status === 'loading'}>
-          {status === 'loading' ? 'Sending…' : 'Send'}
+        {status !== 'idle' && (
+          <div
+            role="alert"
+            className={`rounded-xl px-5 py-3.5 text-sm font-medium transition-all ${
+              status === 'success'
+                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                : status === 'error'
+                  ? 'bg-red-50 text-red-700 border border-red-200'
+                  : 'bg-gray-50 text-gray-600 border border-gray-200'
+            }`}
+            aria-live="polite"
+          >
+            {status === 'success' && (
+              <div className="flex items-center gap-2">
+                <svg className="h-5 w-5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                Message sent! We&apos;ll get back to you soon.
+              </div>
+            )}
+            {status === 'error' && (
+              <div className="flex items-start gap-2">
+                <svg className="h-5 w-5 shrink-0 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+                {errorMsg}
+              </div>
+            )}
+            {status === 'loading' && (
+              <div className="flex items-center gap-2">
+                <svg className="h-5 w-5 animate-spin text-gray-600" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                Sending your message…
+              </div>
+            )}
+          </div>
+        )}
+        <button
+          type="submit"
+          className="btn-premium group inline-flex items-center gap-2 w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={status === 'loading'}
+        >
+          {status === 'loading' ? (
+            <>
+              <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              Sending…
+            </>
+          ) : (
+            <>
+              Send message
+              <svg className="h-5 w-5 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </>
+          )}
         </button>
       </form>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-      <a href="tel:559-991-2190" className="text-sm text-warmgray/90 hover:text-[#8b7355] transition-colors">{subtitle}</a>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <input type="text" name="name" required placeholder="Name" className="input-field input-premium" />
-        <input type="email" name="email" required placeholder="Email" className="input-field input-premium" />
+    <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+      <p className="text-sm text-warmgray hover:text-gold-400 transition-colors">
+        <a href="tel:559-991-2190">{subtitle}</a>
+      </p>
+      <div className="grid gap-5 sm:grid-cols-2">
+        <div className="relative">
+          <input
+            type="text"
+            name="name"
+            required
+            placeholder="Name *"
+            className={fieldErrors.name ? inputErrorClass : inputNormalClass}
+          />
+          {fieldErrors.name && <p className="mt-1 text-xs text-red-600">{fieldErrors.name}</p>}
+        </div>
+        <div className="relative">
+          <input
+            type="email"
+            name="email"
+            required
+            placeholder="Email *"
+            className={fieldErrors.email ? inputErrorClass : inputNormalClass}
+          />
+          {fieldErrors.email && <p className="mt-1 text-xs text-red-600">{fieldErrors.email}</p>}
+        </div>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <input type="tel" name="phone" placeholder="Phone" className="input-field input-premium" />
-        <input type="text" name="address" placeholder="Property address" className="input-field input-premium" />
+      <div className="grid gap-5 sm:grid-cols-2">
+        <div className="relative">
+          <input
+            type="tel"
+            name="phone"
+            placeholder="Phone"
+            className={fieldErrors.phone ? inputErrorClass : inputNormalClass}
+          />
+          {fieldErrors.phone && <p className="mt-1 text-xs text-red-600">{fieldErrors.phone}</p>}
+        </div>
+        <input
+          type="text"
+          name="address"
+          placeholder="Property address"
+          className={inputNormalClass}
+        />
       </div>
-      <div className="grid gap-4 sm:grid-cols-3">
-        <input type="text" name="city" placeholder="City" className="input-field input-premium" />
-        <input type="text" name="state" placeholder="State" className="input-field input-premium" />
-        <input type="text" name="zip" placeholder="Zip" className="input-field input-premium" />
+      <div className="grid gap-5 sm:grid-cols-3">
+        <input type="text" name="city" placeholder="City" className={inputNormalClass} />
+        <input type="text" name="state" placeholder="State" className={inputNormalClass} />
+        <input type="text" name="zip" placeholder="Zip" className={inputNormalClass} />
       </div>
-      <label className={`flex items-start gap-3 cursor-pointer ${status === 'error' && !agreed ? 'text-red-600' : 'text-warmgray'}`}>
+      <label className={`flex items-start gap-3 cursor-pointer transition-colors ${
+        fieldErrors.agree ? 'text-red-600' : 'text-warmgray hover:text-black'
+      }`}>
         <input
           type="checkbox"
           checked={agreed}
-          onChange={(e) => { setAgreed(e.target.checked); setErrorMsg(''); }}
-          className="mt-1 h-4 w-4 shrink-0 rounded border-warmgray/40 text-[#8b7355] focus:ring-[#8b7355]/50"
+          onChange={(e) => {
+            setAgreed(e.target.checked);
+            setFieldErrors((prev) => ({ ...prev, agree: '' }));
+            setErrorMsg('');
+          }}
+          className="mt-1 h-5 w-5 shrink-0 rounded border-gray-300 text-gold-400 focus:ring-gold-400 focus:ring-2 transition-all"
         />
-        <span className="text-[14px] leading-snug">I agree to receive communications from Next Level Home Solutions</span>
+        <span className="text-[14px] leading-snug">
+          I agree to receive communications from Next Level Home Solutions
+        </span>
       </label>
-      <div role="alert" className="rounded-xl px-4 py-3 text-sm font-medium" aria-live="polite">
-        {status === 'success' && <p className="text-emerald-700">Thanks! We&apos;ll be in touch soon.</p>}
-        {status === 'error' && <p className="text-red-600">{errorMsg}</p>}
-        {status === 'loading' && <p className="text-warmgray animate-pulse">Sending…</p>}
-      </div>
+      {status !== 'idle' && (
+        <div
+          role="alert"
+          className={`rounded-xl px-5 py-3.5 text-sm font-medium transition-all ${
+            status === 'success'
+              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+              : status === 'error'
+                ? 'bg-red-50 text-red-700 border border-red-200'
+                : 'bg-gray-50 text-gray-600 border border-gray-200'
+          }`}
+          aria-live="polite"
+        >
+          {status === 'success' && (
+            <div className="flex items-center gap-2">
+              <svg className="h-5 w-5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              Thanks! We&apos;ll be in touch soon.
+            </div>
+          )}
+          {status === 'error' && (
+            <div className="flex items-start gap-2">
+              <svg className="h-5 w-5 shrink-0 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+              {errorMsg}
+            </div>
+          )}
+          {status === 'loading' && (
+            <div className="flex items-center gap-2">
+              <svg className="h-5 w-5 animate-spin text-gray-600" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              Submitting your request…
+            </div>
+          )}
+        </div>
+      )}
       <button
         type="submit"
-        className="btn-premium w-full sm:w-auto disabled:opacity-60 disabled:cursor-not-allowed"
+        className="btn-premium group inline-flex items-center gap-2 w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
         disabled={status === 'loading'}
       >
-        {status === 'loading' ? 'Sending…' : 'Get my offer'}
+        {status === 'loading' ? (
+          <>
+            <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+            Sending…
+          </>
+        ) : (
+          <>
+            Get my offer
+            <svg className="h-5 w-5 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </>
+        )}
       </button>
     </form>
   );
