@@ -4,10 +4,6 @@ import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import LeadsMap, { STATE_NAMES } from '@/components/LeadsMap';
 import { normalizeStateCode } from '@/lib/geo-match';
 
-const ADMIN_USER = 'admin';
-const ADMIN_PASS = 'admin123';
-const AUTH_KEY = 'admin_leads_auth';
-
 /** Initial rows per table; “Load more” adds this many (keeps DOM light for huge lists). */
 const LEAD_TABLE_PAGE_SIZE = 20;
 
@@ -99,9 +95,19 @@ export default function AdminLeadsPage() {
   const initialLeadsFetchInFlight = useRef(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setAuth(sessionStorage.getItem(AUTH_KEY) === 'true');
-    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await fetch('/api/admin/session', { credentials: 'include' });
+        const data = (await res.json()) as { ok?: boolean };
+        if (!cancelled) setAuth(data.ok === true);
+      } catch {
+        if (!cancelled) setAuth(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const fetchLeads = useCallback(async (sync = false) => {
@@ -113,7 +119,11 @@ export default function AdminLeadsPage() {
       const url = sync
         ? '/api/leads?sync=1&t=' + Date.now()
         : '/api/leads?t=' + Date.now();
-      const response = await fetch(url);
+      const response = await fetch(url, { credentials: 'include' });
+      if (response.status === 401) {
+        setAuth(false);
+        throw new Error('Session expired. Please sign in again.');
+      }
       if (!response.ok) {
         throw new Error(`Failed to fetch leads: ${response.status}`);
       }
@@ -162,21 +172,35 @@ export default function AdminLeadsPage() {
     }
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (username === ADMIN_USER && password === ADMIN_PASS) {
-      sessionStorage.setItem(AUTH_KEY, 'true');
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ username, password }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) {
+        setError(data.error || 'Invalid username or password');
+        return;
+      }
       setAuth(true);
       setUsername('');
       setPassword('');
-    } else {
-      setError('Invalid username or password');
+    } catch {
+      setError('Could not reach the server. Try again.');
     }
   };
 
-  const handleLogout = () => {
-    sessionStorage.removeItem(AUTH_KEY);
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/admin/logout', { method: 'POST', credentials: 'include' });
+    } catch {
+      /* still clear UI */
+    }
     setAuth(false);
   };
 

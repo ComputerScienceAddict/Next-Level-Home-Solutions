@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { requireAdminOr401 } from '@/lib/admin-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,6 +12,8 @@ function getSupabase() {
 }
 
 export async function GET(request: NextRequest) {
+  const denied = requireAdminOr401(request);
+  if (denied) return denied;
   const supabase = getSupabase();
   if (!supabase) {
     return NextResponse.json({ error: 'Supabase not configured' }, { status: 500 });
@@ -38,6 +41,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const denied = requireAdminOr401(request);
+  if (denied) return denied;
   const supabase = getSupabase();
   if (!supabase) {
     return NextResponse.json({ error: 'Supabase not configured' }, { status: 500 });

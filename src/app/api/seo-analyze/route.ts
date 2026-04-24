@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { business } from '@/config/business';
 import { SEO_CITIES, SELLER_SITUATIONS } from '@/data/seo-targets';
+import { requireAdminOr401 } from '@/lib/admin-auth';
 import { generateWithAIJson, getActiveAiProvider } from '@/lib/ai';
 
 export const dynamic = 'force-dynamic';
@@ -200,13 +201,15 @@ async function saveAnalysis(analysis: AnalysisResult): Promise<void> {
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const denied = requireAdminOr401(request);
+  if (denied) return denied;
   const ai = await aiAnalysis();
   const result = ai ?? heuristicAnalysis();
   await saveAnalysis(result);
   return NextResponse.json(result);
 }
 
-export async function POST() {
-  return GET();
+export async function POST(request: Request) {
+  return GET(request);
 }

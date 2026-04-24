@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
+import { requireAdminOr401 } from '@/lib/admin-auth';
 import { generateWithAIJson, getActiveAiProvider } from '@/lib/ai';
 
 export const dynamic = 'force-dynamic';
 
 /** Quick check that Gemini/OpenAI keys work (admin / debugging) */
-export async function GET() {
+export async function GET(request: Request) {
+  const denied = requireAdminOr401(request);
+  if (denied) return denied;
   const provider = getActiveAiProvider();
   if (provider === 'none') {
     return NextResponse.json({ ok: false, provider, error: 'No GEMINI_API_KEY or OPENAI_API_KEY' });

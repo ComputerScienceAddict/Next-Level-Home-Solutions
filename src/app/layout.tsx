@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import type { CSSProperties } from 'react';
+import Script from 'next/script';
 import { Instrument_Serif, IBM_Plex_Sans } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
@@ -106,18 +107,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${instrument.variable} ${plex.variable}`}>
       <head>
-        {/* Google tag (gtag.js) — Google Ads */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18044630783" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'AW-18044630783');
-`,
-          }}
-        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -131,6 +120,17 @@ export default function RootLayout({
           } as CSSProperties
         }
       >
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-18044630783"
+          strategy="afterInteractive"
+        />
+        <Script
+          id="gtag-ads-config"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','AW-18044630783');`,
+          }}
+        />
         <Header />
         <main className="min-h-0 overflow-x-clip">{children}</main>
         <Footer />

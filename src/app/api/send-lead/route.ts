@@ -187,14 +187,16 @@ export async function POST(req: Request) {
       });
       if (error) {
         console.error('Supabase insert error:', error);
-        return NextResponse.json(
-          { error: 'Email sent but failed to save to database: ' + error.message },
-          { status: 500 }
-        );
+        return NextResponse.json({
+          message: 'Success',
+          savedToDatabase: false,
+          dbError: error.message,
+        });
       }
+      return NextResponse.json({ message: 'Success', savedToDatabase: true });
     }
 
-    return NextResponse.json({ message: 'Success' });
+    return NextResponse.json({ message: 'Success', savedToDatabase: false });
   } catch (err) {
     console.error('Send lead error:', err);
     return NextResponse.json(

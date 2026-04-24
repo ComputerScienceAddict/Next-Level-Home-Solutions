@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { requireAdminOr401 } from '@/lib/admin-auth';
 import {
   NICHE_DEFAULT_SYNC_CONCURRENCY,
   buildNicheSyncTasks,
@@ -93,6 +94,9 @@ function rowsToNotices(rows: Record<string, unknown>[]) {
  * GET /api/leads?sync=1 — sync from NicheData first, then read (used by "Fetch new leads" button)
  */
 export async function GET(request: Request) {
+  const denied = requireAdminOr401(request);
+  if (denied) return denied;
+
   try {
     const supabase = buildSupabase();
     if (!supabase) {

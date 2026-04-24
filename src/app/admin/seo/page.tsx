@@ -5,8 +5,6 @@ import Link from 'next/link';
 import { business } from '@/config/business';
 import { SEO_CITIES, SELLER_SITUATIONS } from '@/data/seo-targets';
 
-const AUTH_KEY = 'admin_leads_auth';
-
 type SeoPage = {
   id: string;
   situation_slug: string;
@@ -49,17 +47,36 @@ export default function AdminSeoPage() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setAuth(sessionStorage.getItem(AUTH_KEY) === 'true');
-    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await fetch('/api/admin/session', { credentials: 'include' });
+        const data = (await res.json()) as { ok?: boolean };
+        if (!cancelled) setAuth(data.ok === true);
+      } catch {
+        if (!cancelled) setAuth(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const runAnalysis = async () => {
     setAnalyzing(true);
     setMessage(null);
     try {
-      const res = await fetch('/api/seo-analyze');
+      const res = await fetch('/api/seo-analyze', { credentials: 'include' });
+      if (res.status === 401) {
+        setAuth(false);
+        setMessage({ type: 'error', text: 'Session expired. Log in from the main admin page.' });
+        return;
+      }
       const data = await res.json();
+      if (!res.ok) {
+        setMessage({ type: 'error', text: (data as { error?: string }).error || 'Analysis failed' });
+        return;
+      }
       setAnalysis(data);
       setMessage({ type: 'success', text: `Analysis complete (${data.source})` });
     } catch {
@@ -78,8 +95,14 @@ export default function AdminSeoPage() {
       const res = await fetch('/api/seo-generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ situation, city }),
       });
+      if (res.status === 401) {
+        setAuth(false);
+        setMessage({ type: 'error', text: 'Session expired. Log in from the main admin page.' });
+        return;
+      }
       const data = await res.json();
       if (data.success) {
         setMessage({ type: 'success', text: `Generated: ${situation}/${city}` });
@@ -103,11 +126,17 @@ export default function AdminSeoPage() {
     try {
       for (const s of SELLER_SITUATIONS) {
         setGeneratingSituation(s.slug);
-        await fetch('/api/seo-generate', {
+        const batchRes = await fetch('/api/seo-generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ situation: s.slug, city }),
         });
+        if (batchRes.status === 401) {
+          setAuth(false);
+          setMessage({ type: 'error', text: 'Session expired. Log in from the main admin page.' });
+          return;
+        }
         await new Promise((r) => setTimeout(r, 300));
       }
       setMessage({ type: 'success', text: `Generated all situations for ${city}` });
@@ -124,7 +153,11 @@ export default function AdminSeoPage() {
   const fetchPages = async () => {
     setLoadingPages(true);
     try {
-      const res = await fetch('/api/seo-pages');
+      const res = await fetch('/api/seo-pages', { credentials: 'include' });
+      if (res.status === 401) {
+        setAuth(false);
+        return;
+      }
       const data = await res.json();
       setPages(data.pages || []);
     } catch {
@@ -139,6 +172,7 @@ export default function AdminSeoPage() {
       await fetch('/api/seo-pages', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ id, status }),
       });
       fetchPages();
@@ -414,7 +448,7 @@ export default function AdminSeoPage() {
 
             {!analysis && !analyzing && (
               <div className="rounded-xl border border-black/10 bg-white p-12 text-center">
-                <p className="text-warmgray">Click "Run Analysis" to get AI-powered market recommendations.</p>
+                <p className="text-warmgray">Click &ldquo;Run Analysis&rdquo; to get AI-powered market recommendations.</p>
               </div>
             )}
           </div>

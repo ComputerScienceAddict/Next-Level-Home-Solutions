@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { business } from '@/config/business';
 import { getCityBySlug, getSituationBySlug, SEO_CITIES, SELLER_SITUATIONS } from '@/data/seo-targets';
+import { requireAdminOr401 } from '@/lib/admin-auth';
 import { generateWithAIJson, getActiveAiProvider } from '@/lib/ai';
 
 export const dynamic = 'force-dynamic';
@@ -135,6 +136,9 @@ async function saveToSupabase(
 }
 
 export async function POST(request: NextRequest) {
+  const denied = requireAdminOr401(request);
+  if (denied) return denied;
+
   try {
     const body = await request.json();
     const { situation, city, generateAll } = body as {
@@ -219,7 +223,9 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const denied = requireAdminOr401(request);
+  if (denied) return denied;
   return NextResponse.json({
     info: 'POST to this endpoint to generate AI SEO content',
     singlePage: { situation: 'foreclosure', city: 'fresno-ca' },
