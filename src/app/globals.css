@@ -68,7 +68,7 @@ nextjs-portal > * {
 @layer components {
   .input-field {
     @apply w-full border-b-2 border-black/20 bg-transparent px-0 py-3 text-black focus:outline-none;
-    @apply placeholder:text-black/40 transition-colors duration-200;
+    @apply placeholder:text-black/40;
   }
   .input-field:focus {
     border-color: #8b7355;
@@ -82,23 +82,16 @@ nextjs-portal > * {
   .input-premium::placeholder {
     @apply text-black/35;
   }
-  
-  /* Premium button styles */
+  /* Phone / CTA — compact pill, works in header without stretching */
   .btn-call {
-    @apply inline-flex items-center justify-center whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold leading-none tracking-wide transition-all duration-200;
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold leading-none tracking-wide transition;
     background-color: #111;
     color: #faf9f7;
-    min-height: 2.5rem;
+    min-height: 2.5rem; /* 40px — fits header row */
   }
   .btn-call:hover {
     background-color: #8b7355;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3);
   }
-  .btn-call:active {
-    transform: translateY(0);
-  }
-  
   .btn-premium {
     @apply inline-flex items-center justify-center px-8 py-3.5 text-[15px] font-semibold tracking-wide transition-all duration-200;
     background: linear-gradient(135deg, #1e2d3d 0%, #2a3d52 100%);
@@ -110,65 +103,5 @@ nextjs-portal > * {
     background: linear-gradient(135deg, #2a3d52 0%, #1e2d3d 100%);
     box-shadow: 0 6px 20px rgba(30, 45, 61, 0.35);
     transform: translateY(-1px);
-  }
-  .btn-premium:active:not(:disabled) {
-    transform: translateY(0);
-  }
-  
-  .btn-gold {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gold-300 px-6 py-3.5 text-[15px] font-bold uppercase tracking-widest text-navy-600 shadow-lg transition-all duration-200;
-  }
-  .btn-gold:hover {
-    @apply bg-gold-200 shadow-glow-gold;
-    transform: translateY(-2px);
-  }
-  .btn-gold:active {
-    transform: translateY(0);
-  }
-  
-  /* Premium card styles */
-  .card-premium {
-    @apply rounded-2xl border border-black/[0.06] bg-white shadow-premium ring-1 ring-black/[0.04] transition-all duration-300;
-  }
-  .card-premium:hover {
-    @apply shadow-premium-lg;
-    transform: translateY(-2px);
-  }
-  
-  .card-glass {
-    @apply rounded-xl border border-white/10 bg-white/[0.04] backdrop-blur-sm transition-all duration-300;
-  }
-  .card-glass:hover {
-    @apply border-white/20 bg-white/[0.08];
-  }
-  
-  /* Text gradient effects */
-  .text-gradient-gold {
-    background: linear-gradient(135deg, #c9a86c 0%, #dfc08a 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  
-  /* Scroll reveal animations */
-  .animate-on-scroll {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  .animate-on-scroll.visible {
-    animation: fade-in-up 0.8s ease-out forwards;
-  }
-  
-  /* Trust badge styles */
-  .trust-badge {
-    @apply inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium backdrop-blur-sm;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-  }
-  
-  /* Premium section separators */
-  .section-divider {
-    @apply border-t border-black/[0.08];
-    background: linear-gradient(90deg, transparent 0%, rgba(139, 115, 85, 0.1) 50%, transparent 100%);
-    height: 1px;
   }
 }

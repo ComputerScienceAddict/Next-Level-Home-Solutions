@@ -23,57 +23,34 @@ const plex = IBM_Plex_Sans({
 });
 
 const ogDescription =
-  'Get a fair cash offer in 24 hours. We buy houses as-is across California. No commissions, no repairs, no showings. Facing foreclosure? We can help you sell fast and keep your equity. Trusted local home buyers since [year].';
+  'Get a cash offer under 24Hr. Sell as-is, no commissions. Foreclosure help and fast closings. Call for a no-obligation offer.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://nextlevelhomesolutions.com'),
   title: {
-    default: `Sell Your House Fast for Cash | ${business.name}`,
+    default: `Get a cash offer under 24Hr! | ${business.name}`,
     template: `%s | ${business.name}`,
   },
   description: ogDescription,
-  keywords: [
-    'sell house fast',
-    'cash home buyers',
-    'we buy houses',
-    'foreclosure help',
-    'sell as-is',
-    'Fresno home buyers',
-    'avoid foreclosure',
-    'sell house for cash',
-    'cash offer for house',
-    'sell inherited property',
-    'probate real estate',
-    'divorce house sale',
-    'fast home sale California',
-  ],
+  keywords: ['sell house fast', 'cash home buyers', 'foreclosure help', 'sell as-is', 'Fresno home buyers', 'avoid foreclosure'],
   authors: [{ name: business.name }],
-  creator: business.name,
-  publisher: business.name,
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
     url: '/',
     siteName: business.name,
-    title: 'Sell Your House Fast for Cash in California',
+    title: 'Get a cash offer under 24Hr!',
     description: ogDescription,
     images: [
       {
         url: SITE_OG_IMAGE_PATH,
-        width: 1200,
-        height: 630,
-        alt: `${business.name} — Fast, Fair Cash Offers for Your Home`,
+        alt: `${business.name} — logo`,
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Sell Your House Fast for Cash',
+    title: 'Get a cash offer under 24Hr!',
     description: ogDescription,
     images: [SITE_OG_IMAGE_PATH],
   },
@@ -83,13 +60,7 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
     },
-  },
-  alternates: {
-    canonical: '/',
   },
 };
 
@@ -109,29 +80,16 @@ export default function RootLayout({
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
-    '@id': process.env.NEXT_PUBLIC_SITE_URL || 'https://nextlevelhomesolutions.com',
     name: 'Next Level Home Solutions',
-    description: 'Professional cash home buyers in California. We buy homes fast for cash, help homeowners facing foreclosure sell quickly with no commissions. Get your offer in 24 hours.',
+    description: 'We buy homes fast for cash. Help homeowners facing foreclosure sell quickly with no commissions.',
     url: process.env.NEXT_PUBLIC_SITE_URL || 'https://nextlevelhomesolutions.com',
     telephone: '559-991-2190',
-    email: business.contactEmail,
     priceRange: '$$',
-    image: SITE_OG_IMAGE_PATH,
-    logo: {
-      '@type': 'ImageObject',
-      url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://nextlevelhomesolutions.com'}/logo.png`,
-    },
     address: {
       '@type': 'PostalAddress',
       addressLocality: 'Fresno',
       addressRegion: 'CA',
-      postalCode: '93650',
       addressCountry: 'US',
-    },
-    geo: {
-      '@type': 'GeoCoordinates',
-      latitude: '36.7378',
-      longitude: '-119.7871',
     },
     areaServed: [
       {
@@ -144,19 +102,6 @@ export default function RootLayout({
       },
     ],
     openingHours: 'Mo-Fr 08:00-18:00',
-    sameAs: [
-      // Add social media profiles here if available
-    ],
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.9',
-      reviewCount: '127',
-    },
-    offers: {
-      '@type': 'Offer',
-      description: 'Cash offers for homes in any condition. Close in as little as 7 days.',
-      availability: 'https://schema.org/InStock',
-    },
   };
 
   return (
